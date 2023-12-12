@@ -1,0 +1,1169 @@
+// Bun Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`parse tokenize works on complex input 1`] = `
+[
+  {
+    "loc": {
+      "end": {
+        "column": 41,
+        "line": 22,
+        "offset": 19,
+      },
+      "start": {
+        "column": 31,
+        "line": 21,
+        "offset": 9,
+      },
+    },
+    "type": "ATOM",
+    "value": "eric-weber",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 42,
+        "line": 23,
+        "offset": 20,
+      },
+      "start": {
+        "column": 41,
+        "line": 22,
+        "offset": 19,
+      },
+    },
+    "type": "PART_SEPARATOR",
+    "value": " ",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 11,
+        "line": 25,
+        "offset": 32,
+      },
+      "start": {
+        "column": 42,
+        "line": 23,
+        "offset": 20,
+      },
+    },
+    "type": "L_CURLY",
+    "value": 
+"{
+          "
+,
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 16,
+        "line": 26,
+        "offset": 37,
+      },
+      "start": {
+        "column": 11,
+        "line": 25,
+        "offset": 32,
+      },
+    },
+    "type": "ATOM",
+    "value": "knows",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 17,
+        "line": 27,
+        "offset": 38,
+      },
+      "start": {
+        "column": 16,
+        "line": 26,
+        "offset": 37,
+      },
+    },
+    "type": "PART_SEPARATOR",
+    "value": " ",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 13,
+        "line": 29,
+        "offset": 52,
+      },
+      "start": {
+        "column": 17,
+        "line": 27,
+        "offset": 38,
+      },
+    },
+    "type": "L_CURLY",
+    "value": 
+"{
+            "
+,
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 23,
+        "line": 30,
+        "offset": 62,
+      },
+      "start": {
+        "column": 13,
+        "line": 29,
+        "offset": 52,
+      },
+    },
+    "type": "ATOM",
+    "value": "typescript",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 13,
+        "line": 32,
+        "offset": 75,
+      },
+      "start": {
+        "column": 23,
+        "line": 30,
+        "offset": 62,
+      },
+    },
+    "type": "BRANCH_SEPARATOR",
+    "value": 
+"
+            "
+,
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 23,
+        "line": 33,
+        "offset": 85,
+      },
+      "start": {
+        "column": 13,
+        "line": 32,
+        "offset": 75,
+      },
+    },
+    "type": "ATOM",
+    "value": "javascript",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 13,
+        "line": 35,
+        "offset": 98,
+      },
+      "start": {
+        "column": 23,
+        "line": 33,
+        "offset": 85,
+      },
+    },
+    "type": "BRANCH_SEPARATOR",
+    "value": 
+"
+            "
+,
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 14,
+        "line": 36,
+        "offset": 99,
+      },
+      "start": {
+        "column": 13,
+        "line": 35,
+        "offset": 98,
+      },
+    },
+    "type": "L_SQUARE",
+    "value": "[",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 18,
+        "line": 37,
+        "offset": 103,
+      },
+      "start": {
+        "column": 14,
+        "line": 36,
+        "offset": 99,
+      },
+    },
+    "type": "PREV_REF",
+    "value": "... ",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 23,
+        "line": 38,
+        "offset": 108,
+      },
+      "start": {
+        "column": 18,
+        "line": 37,
+        "offset": 103,
+      },
+    },
+    "type": "ATOM",
+    "value": "excel",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 24,
+        "line": 39,
+        "offset": 109,
+      },
+      "start": {
+        "column": 23,
+        "line": 38,
+        "offset": 108,
+      },
+    },
+    "type": "PART_SEPARATOR",
+    "value": " ",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 25,
+        "line": 40,
+        "offset": 110,
+      },
+      "start": {
+        "column": 24,
+        "line": 39,
+        "offset": 109,
+      },
+    },
+    "type": "L_PAREN",
+    "value": "(",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 40,
+        "line": 41,
+        "offset": 125,
+      },
+      "start": {
+        "column": 25,
+        "line": 40,
+        "offset": 110,
+      },
+    },
+    "type": "ATOM",
+    "value": "spreadsheet-app",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 41,
+        "line": 42,
+        "offset": 126,
+      },
+      "start": {
+        "column": 40,
+        "line": 41,
+        "offset": 125,
+      },
+    },
+    "type": "R_PAREN",
+    "value": ")",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 42,
+        "line": 43,
+        "offset": 127,
+      },
+      "start": {
+        "column": 41,
+        "line": 42,
+        "offset": 126,
+      },
+    },
+    "type": "R_SQUARE",
+    "value": "]",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 43,
+        "line": 44,
+        "offset": 128,
+      },
+      "start": {
+        "column": 42,
+        "line": 43,
+        "offset": 127,
+      },
+    },
+    "type": "PART_SEPARATOR",
+    "value": " ",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 48,
+        "line": 45,
+        "offset": 133,
+      },
+      "start": {
+        "column": 43,
+        "line": 44,
+        "offset": 128,
+      },
+    },
+    "type": "ATOM",
+    "value": "since",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 49,
+        "line": 46,
+        "offset": 134,
+      },
+      "start": {
+        "column": 48,
+        "line": 45,
+        "offset": 133,
+      },
+    },
+    "type": "PART_SEPARATOR",
+    "value": " ",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 53,
+        "line": 47,
+        "offset": 138,
+      },
+      "start": {
+        "column": 49,
+        "line": 46,
+        "offset": 134,
+      },
+    },
+    "type": "ATOM",
+    "value": "1999",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 11,
+        "line": 49,
+        "offset": 149,
+      },
+      "start": {
+        "column": 53,
+        "line": 47,
+        "offset": 138,
+      },
+    },
+    "type": "BRANCH_SEPARATOR",
+    "value": 
+"
+          "
+,
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 12,
+        "line": 50,
+        "offset": 150,
+      },
+      "start": {
+        "column": 11,
+        "line": 49,
+        "offset": 149,
+      },
+    },
+    "type": "R_CURLY",
+    "value": "}",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 13,
+        "line": 51,
+        "offset": 151,
+      },
+      "start": {
+        "column": 12,
+        "line": 50,
+        "offset": 150,
+      },
+    },
+    "type": "PART_SEPARATOR",
+    "value": " ",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 14,
+        "line": 52,
+        "offset": 152,
+      },
+      "start": {
+        "column": 13,
+        "line": 51,
+        "offset": 151,
+      },
+    },
+    "type": "L_PAREN",
+    "value": "(",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 34,
+        "line": 53,
+        "offset": 172,
+      },
+      "start": {
+        "column": 14,
+        "line": 52,
+        "offset": 152,
+      },
+    },
+    "type": "ATOM",
+    "value": "programming-language",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 35,
+        "line": 54,
+        "offset": 173,
+      },
+      "start": {
+        "column": 34,
+        "line": 53,
+        "offset": 172,
+      },
+    },
+    "type": "R_PAREN",
+    "value": ")",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 11,
+        "line": 57,
+        "offset": 189,
+      },
+      "start": {
+        "column": 35,
+        "line": 54,
+        "offset": 173,
+      },
+    },
+    "type": "BRANCH_SEPARATOR",
+    "value": 
+"
+    
+          "
+,
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 16,
+        "line": 58,
+        "offset": 194,
+      },
+      "start": {
+        "column": 11,
+        "line": 57,
+        "offset": 189,
+      },
+    },
+    "type": "ATOM",
+    "value": "named",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 21,
+        "line": 59,
+        "offset": 199,
+      },
+      "start": {
+        "column": 16,
+        "line": 58,
+        "offset": 194,
+      },
+    },
+    "type": "PART_SEPARATOR",
+    "value": "     ",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 35,
+        "line": 60,
+        "offset": 213,
+      },
+      "start": {
+        "column": 21,
+        "line": 59,
+        "offset": 199,
+      },
+    },
+    "type": "ATOM",
+    "value": "<<Eric Weber>>",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 11,
+        "line": 63,
+        "offset": 229,
+      },
+      "start": {
+        "column": 35,
+        "line": 60,
+        "offset": 213,
+      },
+    },
+    "type": "BRANCH_SEPARATOR",
+    "value": 
+"
+    
+          "
+,
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 23,
+        "line": 64,
+        "offset": 241,
+      },
+      "start": {
+        "column": 11,
+        "line": 63,
+        "offset": 229,
+      },
+    },
+    "type": "ATOM",
+    "value": "described-as",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 24,
+        "line": 65,
+        "offset": 242,
+      },
+      "start": {
+        "column": 23,
+        "line": 64,
+        "offset": 241,
+      },
+    },
+    "type": "PART_SEPARATOR",
+    "value": " ",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 28,
+        "line": 69,
+        "offset": 302,
+      },
+      "start": {
+        "column": 24,
+        "line": 65,
+        "offset": 242,
+      },
+    },
+    "type": "ATOM",
+    "value": 
+"<<a person
+          
+          
+          who writes code>>"
+,
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 11,
+        "line": 72,
+        "offset": 314,
+      },
+      "start": {
+        "column": 28,
+        "line": 69,
+        "offset": 302,
+      },
+    },
+    "type": "BRANCH_SEPARATOR",
+    "value": 
+"
+
+          "
+,
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 15,
+        "line": 73,
+        "offset": 318,
+      },
+      "start": {
+        "column": 11,
+        "line": 72,
+        "offset": 314,
+      },
+    },
+    "type": "ATOM",
+    "value": "john",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 16,
+        "line": 74,
+        "offset": 319,
+      },
+      "start": {
+        "column": 15,
+        "line": 73,
+        "offset": 318,
+      },
+    },
+    "type": "PART_SEPARATOR",
+    "value": " ",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 21,
+        "line": 75,
+        "offset": 324,
+      },
+      "start": {
+        "column": 16,
+        "line": 74,
+        "offset": 319,
+      },
+    },
+    "type": "ATOM",
+    "value": "knows",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 22,
+        "line": 76,
+        "offset": 325,
+      },
+      "start": {
+        "column": 21,
+        "line": 75,
+        "offset": 324,
+      },
+    },
+    "type": "PART_SEPARATOR",
+    "value": " ",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 23,
+        "line": 77,
+        "offset": 326,
+      },
+      "start": {
+        "column": 22,
+        "line": 76,
+        "offset": 325,
+      },
+    },
+    "type": "HEAD_REF",
+    "value": "&",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 9,
+        "line": 79,
+        "offset": 335,
+      },
+      "start": {
+        "column": 23,
+        "line": 77,
+        "offset": 326,
+      },
+    },
+    "type": "BRANCH_SEPARATOR",
+    "value": 
+"
+        "
+,
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 10,
+        "line": 80,
+        "offset": 336,
+      },
+      "start": {
+        "column": 9,
+        "line": 79,
+        "offset": 335,
+      },
+    },
+    "type": "R_CURLY",
+    "value": "}",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 9,
+        "line": 83,
+        "offset": 350,
+      },
+      "start": {
+        "column": 10,
+        "line": 80,
+        "offset": 336,
+      },
+    },
+    "type": "BRANCH_SEPARATOR",
+    "value": 
+"
+    
+        "
+,
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 10,
+        "line": 84,
+        "offset": 351,
+      },
+      "start": {
+        "column": 9,
+        "line": 83,
+        "offset": 350,
+      },
+    },
+    "type": "L_SQUARE",
+    "value": "[",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 14,
+        "line": 85,
+        "offset": 355,
+      },
+      "start": {
+        "column": 10,
+        "line": 84,
+        "offset": 351,
+      },
+    },
+    "type": "ATOM",
+    "value": "eric",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 15,
+        "line": 86,
+        "offset": 356,
+      },
+      "start": {
+        "column": 14,
+        "line": 85,
+        "offset": 355,
+      },
+    },
+    "type": "PART_SEPARATOR",
+    "value": " ",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 20,
+        "line": 87,
+        "offset": 361,
+      },
+      "start": {
+        "column": 15,
+        "line": 86,
+        "offset": 356,
+      },
+    },
+    "type": "ATOM",
+    "value": "knows",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 21,
+        "line": 88,
+        "offset": 362,
+      },
+      "start": {
+        "column": 20,
+        "line": 87,
+        "offset": 361,
+      },
+    },
+    "type": "PART_SEPARATOR",
+    "value": " ",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 31,
+        "line": 89,
+        "offset": 372,
+      },
+      "start": {
+        "column": 21,
+        "line": 88,
+        "offset": 362,
+      },
+    },
+    "type": "ATOM",
+    "value": "javascript",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 32,
+        "line": 90,
+        "offset": 373,
+      },
+      "start": {
+        "column": 31,
+        "line": 89,
+        "offset": 372,
+      },
+    },
+    "type": "R_SQUARE",
+    "value": "]",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 33,
+        "line": 91,
+        "offset": 374,
+      },
+      "start": {
+        "column": 32,
+        "line": 90,
+        "offset": 373,
+      },
+    },
+    "type": "PART_SEPARATOR",
+    "value": " ",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 38,
+        "line": 92,
+        "offset": 379,
+      },
+      "start": {
+        "column": 33,
+        "line": 91,
+        "offset": 374,
+      },
+    },
+    "type": "ATOM",
+    "value": "since",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 39,
+        "line": 93,
+        "offset": 380,
+      },
+      "start": {
+        "column": 38,
+        "line": 92,
+        "offset": 379,
+      },
+    },
+    "type": "PART_SEPARATOR",
+    "value": " ",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 43,
+        "line": 94,
+        "offset": 384,
+      },
+      "start": {
+        "column": 39,
+        "line": 93,
+        "offset": 380,
+      },
+    },
+    "type": "ATOM",
+    "value": "1999",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 9,
+        "line": 97,
+        "offset": 394,
+      },
+      "start": {
+        "column": 43,
+        "line": 94,
+        "offset": 384,
+      },
+    },
+    "type": "BRANCH_SEPARATOR",
+    "value": 
+"
+
+        "
+,
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 10,
+        "line": 98,
+        "offset": 395,
+      },
+      "start": {
+        "column": 9,
+        "line": 97,
+        "offset": 394,
+      },
+    },
+    "type": "L_SQUARE",
+    "value": "[",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 11,
+        "line": 99,
+        "offset": 396,
+      },
+      "start": {
+        "column": 10,
+        "line": 98,
+        "offset": 395,
+      },
+    },
+    "type": "SORTED_SET_INIT",
+    "value": ":",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 12,
+        "line": 100,
+        "offset": 397,
+      },
+      "start": {
+        "column": 11,
+        "line": 99,
+        "offset": 396,
+      },
+    },
+    "type": "PART_SEPARATOR",
+    "value": " ",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 14,
+        "line": 101,
+        "offset": 399,
+      },
+      "start": {
+        "column": 12,
+        "line": 100,
+        "offset": 397,
+      },
+    },
+    "type": "ATOM",
+    "value": "Hi",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 15,
+        "line": 102,
+        "offset": 400,
+      },
+      "start": {
+        "column": 14,
+        "line": 101,
+        "offset": 399,
+      },
+    },
+    "type": "PART_SEPARATOR",
+    "value": " ",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 18,
+        "line": 103,
+        "offset": 403,
+      },
+      "start": {
+        "column": 15,
+        "line": 102,
+        "offset": 400,
+      },
+    },
+    "type": "ATOM",
+    "value": "I'm",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 19,
+        "line": 104,
+        "offset": 404,
+      },
+      "start": {
+        "column": 18,
+        "line": 103,
+        "offset": 403,
+      },
+    },
+    "type": "PART_SEPARATOR",
+    "value": " ",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 20,
+        "line": 105,
+        "offset": 405,
+      },
+      "start": {
+        "column": 19,
+        "line": 104,
+        "offset": 404,
+      },
+    },
+    "type": "ATOM",
+    "value": "a",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 21,
+        "line": 106,
+        "offset": 406,
+      },
+      "start": {
+        "column": 20,
+        "line": 105,
+        "offset": 405,
+      },
+    },
+    "type": "PART_SEPARATOR",
+    "value": " ",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 27,
+        "line": 107,
+        "offset": 412,
+      },
+      "start": {
+        "column": 21,
+        "line": 106,
+        "offset": 406,
+      },
+    },
+    "type": "ATOM",
+    "value": "sorted",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 28,
+        "line": 108,
+        "offset": 413,
+      },
+      "start": {
+        "column": 27,
+        "line": 107,
+        "offset": 412,
+      },
+    },
+    "type": "PART_SEPARATOR",
+    "value": " ",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 32,
+        "line": 109,
+        "offset": 417,
+      },
+      "start": {
+        "column": 28,
+        "line": 108,
+        "offset": 413,
+      },
+    },
+    "type": "ATOM",
+    "value": "set!",
+  },
+  {
+    "loc": {
+      "end": {
+        "column": 33,
+        "line": 110,
+        "offset": 418,
+      },
+      "start": {
+        "column": 32,
+        "line": 109,
+        "offset": 417,
+      },
+    },
+    "type": "R_SQUARE",
+    "value": "]",
+  },
+]
+`;

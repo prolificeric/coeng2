@@ -2,6 +2,7 @@
   "type": "module",
   "dependencies": {},
   "devDependencies": {
+    "bun-types": "^1.0.17",
     "prettier": "^3.1.0",
     "typescript": "^5.3.2"
   }
