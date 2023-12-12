@@ -7,32 +7,18 @@ export type AstNodeType =
   | 'ATOM'
   | 'PARENTHESIS';
 
-export class AstParseCursor {
-  branch: AstNode;
-  prev: AstNode;
-
-  constructor(init: { branch: AstNode; prev: AstNode }) {
-    this.branch = init.branch;
-    this.prev = init.prev;
-  }
-  
-  createBranchChild(init: AstNodeInit) {
-    this.prev = this.branch.createChild(init);
-  }
-}
-
 export type AstNodeInit = {
   type: AstNodeType;
   children?: AstNode[];
-  properties?: Record<string, any>;
+  parent?: AstNode;
   token?: Token;
 };
 
 export class AstNode {
   type: AstNodeType;
   children: AstNode[];
-  token?: Token;
   parent?: AstNode;
+  token?: Token;
 
   constructor(init: AstNodeInit) {
     this.type = init.type;
@@ -63,10 +49,44 @@ export class AstNode {
   }
 }
 
+export type AstParseCursorInit = {
+  root: AstNode;
+  branch: AstNode;
+  prev?: AstNode;
+};
+
+export class AstParseCursor {
+  root: AstNode;
+  branch: AstNode;
+  prev: AstNode | null;
+
+  constructor(init: AstParseCursorInit) {
+    this.root = init.root;
+    this.branch = init.branch;
+    this.prev = init.prev || null;
+  }
+
+  createBranchChild(init: AstNodeInit) {
+    this.prev = this.branch.createChild(init);
+  }
+
+  nextBranch() {
+    this.branch = this.branch.requireParent().createChild({ type: 'BRANCH' });
+    this.prev = null;
+  }
+
+  closeBranchList() {}
+
+  getParentBranchList() {}
+
+  goUpUntil(test: (node: AstNode) => boolean) {}
+}
+
 export const parseAst = (tokens: Token[]): AstNode => {
   const root = new AstNode({ type: 'BRANCH_LIST' });
 
   const cursor = new AstParseCursor({
+    root,
     prev: root,
     branch: root.createChild({ type: 'BRANCH' }),
   });
@@ -103,7 +123,7 @@ export const astTokenHandlers: Record<
   },
 
   L_PAREN(token, cursor) {
-    const 
+    // const
   },
 
   R_PAREN(token) {
