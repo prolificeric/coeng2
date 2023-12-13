@@ -16,17 +16,23 @@ describe('AstNode', () => {
   describe('fromTokens', () => {
     test('should return a root node with correct hierarchy', () => {
       const tokens = tokenize(`
-      eric (person) {
-        knows {
-          typescript
-          javascript ([...] since 1999)
-        } (programming-language)
-      }
-    `);
+        eric (person) {
+          knows {
+            typescript
+            javascript ([...] since 1999)
+          } (programming-language)
+        }
+      `);
 
       const ast = AstNode.fromTokens(tokens, node => {
-        console.log(node.type, node.token?.value);
+        // console.log(node.type, node.token?.value);
       });
+
+      let node: any = ast;
+
+      do {
+        console.log(node.type, node.token?.value);
+      } while ((node = node.next));
     });
   });
 });

@@ -7,6 +7,7 @@ export type AstNodeType =
   | 'ATOM'
   | 'INLINE_BRANCHING'
   | 'PARENTHETICAL'
+  | 'END_BLOCK'
   | 'HEAD_REF'
   | 'PREV_SEQ_REF'
   | 'SORTED_SET_INIT';
@@ -20,9 +21,24 @@ export type AstNodeInit = {
   token?: Token;
 };
 
-export type Predicate = string | ((node: AstNode) => boolean);
+export type Predicate = string | string[] | ((node: AstNode) => boolean);
 
 export type AstParseEventHandler = (node: AstNode) => void;
+
+export const normalizePredicate = (
+  predicate: Predicate,
+): ((node: AstNode) => boolean) => {
+  if (typeof predicate === 'string') {
+    predicate = [predicate];
+  }
+
+  if (Array.isArray(predicate)) {
+    const types = predicate;
+    return node => types.includes(node.type);
+  }
+
+  return predicate;
+};
 
 export class AstNode {
   type: AstNodeType;
@@ -128,10 +144,7 @@ export class AstNode {
   }
 
   requireClosest(predicate: Predicate): AstNode {
-    if (typeof predicate === 'string') {
-      const type = predicate;
-      predicate = node => node.type === type;
-    }
+    predicate = normalizePredicate(predicate);
 
     if (predicate(this)) {
       return this;
@@ -169,11 +182,7 @@ export class AstNode {
   }
 
   findClosest(predicate: Predicate) {
-    if (typeof predicate === 'string') {
-      const type = predicate;
-      predicate = node => node.type === type;
-    }
-
+    predicate = normalizePredicate(predicate);
     return predicate(this) ? this : this.findAncestor(predicate);
   }
 
@@ -190,12 +199,9 @@ export class AstNode {
   }
 
   traverse(selector: (node: AstNode) => AstNode | null, predicate: Predicate) {
-    let node: AstNode | null = this;
+    predicate = normalizePredicate(predicate);
 
-    if (typeof predicate === 'string') {
-      const type = predicate;
-      predicate = node => node.type === type;
-    }
+    let node: AstNode | null = this;
 
     while ((node = selector(node))) {
       if (predicate(node)) {
@@ -249,8 +255,8 @@ export const astTokenHandlers: Record<
     return node;
   },
 
-  PART_SEPARATOR(_token, cursor, onNodeComplete) {
-    return cursor.requireClosest('BRANCH');
+  PART_SEPARATOR(_token, cursor) {
+    return cursor;
   },
 
   L_PAREN(token, cursor) {
@@ -261,13 +267,25 @@ export const astTokenHandlers: Record<
   },
 
   R_PAREN(_token, cursor, onNodeComplete) {
-    const node =
-      cursor.requireClosest('PARENTHETICAL').prev ||
-      cursor.requireClosest('BRANCH');
+    const parenthetical = cursor.requireClosest('PARENTHETICAL');
 
-    onNodeComplete?.(node);
+    if (!parenthetical) {
+      return cursor;
+    }
 
-    return node;
+    const next = cursor
+      .createChild({ type: 'END_BLOCK' })
+      .insertAfter(parenthetical);
+
+    if (onNodeComplete) {
+      [
+        cursor.requireClosest('BRANCH'),
+        cursor.requireClosest('BRANCH_LIST'),
+        cursor.requireClosest('PARENTHETICAL'),
+      ].forEach(onNodeComplete);
+    }
+
+    return next;
   },
 
   L_CURLY(token, cursor) {
