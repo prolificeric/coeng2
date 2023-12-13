@@ -9,7 +9,7 @@ export type TokenType =
   | 'L_SQUARE'
   | 'R_SQUARE'
   | 'HEAD_REF'
-  | 'PREV_REF'
+  | 'PREV_SEQ_REF'
   | 'SORTED_SET_INIT';
 
 export type Token = {
@@ -80,7 +80,7 @@ export const defaultTokenParsers: TokenParser[] = [
     parse: RegExpParser(/^&/),
   },
   {
-    type: 'PREV_REF',
+    type: 'PREV_SEQ_REF',
     parse: RegExpParser(/^\.{3}[^.]/),
   },
   {

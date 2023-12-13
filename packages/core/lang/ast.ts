@@ -6,7 +6,10 @@ export type AstNodeType =
   | 'COMPOUND'
   | 'ATOM'
   | 'INLINE_BRANCHING'
-  | 'PARENTHETICAL';
+  | 'PARENTHETICAL'
+  | 'HEAD_REF'
+  | 'PREV_SEQ_REF'
+  | 'SORTED_SET_INIT';
 
 export type AstNodeInit = {
   type: AstNodeType;
@@ -19,6 +22,8 @@ export type AstNodeInit = {
 
 export type Predicate = string | ((node: AstNode) => boolean);
 
+export type AstParseEventHandler = (node: AstNode) => void;
+
 export class AstNode {
   type: AstNodeType;
   children: AstNode[];
@@ -26,6 +31,7 @@ export class AstNode {
   prev: AstNode | null;
   next: AstNode | null;
   token: Token | null;
+  computed: Record<string, any>;
 
   constructor(init: AstNodeInit) {
     this.type = init.type;
@@ -34,11 +40,15 @@ export class AstNode {
     this.prev = init.prev || null;
     this.next = init.next || null;
     this.token = init.token || null;
+    this.computed = {};
   }
 
-  static parse(tokens: Token[]): AstNode {
+  static fromTokens(
+    tokens: Token[],
+    onNodeComplete?: (node: AstNode) => void,
+  ): AstNode {
     const root = new AstNode({ type: 'BRANCH_LIST' });
-    let cursor = root.createChild({ type: 'BRANCH' });
+    let cursor = root.createChild({ type: 'BRANCH' }, { insertNext: true });
 
     for (const token of tokens) {
       const handler = astTokenHandlers[token.type];
@@ -47,7 +57,17 @@ export class AstNode {
         throw new Error(`No handler for token type ${token.type}`);
       }
 
-      cursor = handler(token, cursor);
+      const next = handler(token, cursor, onNodeComplete);
+      cursor.insertNext(next);
+      cursor = next;
+    }
+
+    if (onNodeComplete) {
+      let parent: AstNode | null = cursor;
+
+      while ((parent = parent.parent)) {
+        onNodeComplete(cursor);
+      }
     }
 
     return root;
@@ -57,12 +77,12 @@ export class AstNode {
     return this.parent || this;
   }
 
-  insertBefore(node: AstNode): AstNode {
-    node.insertAfter(this);
+  insertAfter(node: AstNode): AstNode {
+    node.insertNext(this);
     return this;
   }
 
-  insertAfter(node: AstNode): AstNode {
+  insertNext(node: AstNode): AstNode {
     if (node.prev) {
       node.prev.next = node.next;
     }
@@ -77,13 +97,24 @@ export class AstNode {
     return this;
   }
 
-  createChild(init: AstNodeInit): AstNode {
+  createChild(
+    init: AstNodeInit,
+    options?: {
+      insertNext: boolean;
+    },
+  ): AstNode {
+    const { insertNext = false } = options || {};
+
     const child = new AstNode({
       ...init,
       parent: this,
     });
 
     this.children.push(child);
+
+    if (insertNext) {
+      this.insertNext(child);
+    }
 
     return child;
   }
@@ -94,6 +125,23 @@ export class AstNode {
     }
 
     throw new Error('Node has no parent');
+  }
+
+  requireClosest(predicate: Predicate): AstNode {
+    if (typeof predicate === 'string') {
+      const type = predicate;
+      predicate = node => node.type === type;
+    }
+
+    if (predicate(this)) {
+      return this;
+    }
+
+    return this.traverseOrThrow(
+      node => node.parent,
+      predicate,
+      'Could not find closest node',
+    );
   }
 
   requireAncestor(predicate: Predicate): AstNode {
@@ -108,7 +156,7 @@ export class AstNode {
     return this.traverseOrThrow(
       node => node.prev,
       predicate,
-      'Could not find next node',
+      'Could not find previous node',
     );
   }
 
@@ -118,6 +166,15 @@ export class AstNode {
       predicate,
       'Could not find next node',
     );
+  }
+
+  findClosest(predicate: Predicate) {
+    if (typeof predicate === 'string') {
+      const type = predicate;
+      predicate = node => node.type === type;
+    }
+
+    return predicate(this) ? this : this.findAncestor(predicate);
   }
 
   findAncestor(predicate: Predicate): AstNode | null {
@@ -166,53 +223,108 @@ export class AstNode {
 
 export const astTokenHandlers: Record<
   TokenType,
-  (token: Token, cursor: AstNode) => AstNode
+  (
+    token: Token,
+    cursor: AstNode,
+    onNodeComplete?: (node: AstNode) => void,
+  ) => AstNode
 > = {
-  ATOM(token, cursor) {
-    throw new Error('Function not implemented.');
+  ATOM(token, cursor, onNodeComplete) {
+    const node = cursor
+      .requireClosest('BRANCH')
+      .createChild({ token, type: 'ATOM' })
+      .insertAfter(cursor);
+
+    return node;
   },
 
-  BRANCH_SEPARATOR(token, cursor) {
-    throw new Error('Function not implemented.');
+  BRANCH_SEPARATOR(token, cursor, onNodeComplete) {
+    const node = cursor
+      .requireClosest('BRANCH_LIST')
+      .createChild({ token, type: 'BRANCH' })
+      .insertAfter(cursor);
+
+    onNodeComplete?.(cursor);
+
+    return node;
   },
 
-  PART_SEPARATOR(token, cursor) {
-    throw new Error('Function not implemented.');
+  PART_SEPARATOR(_token, cursor, onNodeComplete) {
+    return cursor.requireClosest('BRANCH');
   },
 
   L_PAREN(token, cursor) {
-    throw new Error('Function not implemented.');
+    return cursor
+      .createChild({ token, type: 'PARENTHETICAL' }, { insertNext: true })
+      .createChild({ type: 'BRANCH_LIST' }, { insertNext: true })
+      .createChild({ type: 'BRANCH' }, { insertNext: true });
   },
 
-  R_PAREN(token, cursor) {
-    throw new Error('Function not implemented.');
+  R_PAREN(_token, cursor, onNodeComplete) {
+    const node =
+      cursor.requireClosest('PARENTHETICAL').prev ||
+      cursor.requireClosest('BRANCH');
+
+    onNodeComplete?.(node);
+
+    return node;
   },
 
   L_CURLY(token, cursor) {
-    throw new Error('Function not implemented.');
+    return cursor
+      .createChild({ token, type: 'INLINE_BRANCHING' }, { insertNext: true })
+      .createChild({ type: 'BRANCH_LIST' }, { insertNext: true })
+      .createChild({ type: 'BRANCH' }, { insertNext: true });
   },
 
-  R_CURLY(token, cursor) {
-    throw new Error('Function not implemented.');
+  R_CURLY(_token, cursor, onNodeComplete) {
+    if (onNodeComplete) {
+      [
+        cursor.requireClosest('BRANCH'),
+        cursor.requireClosest('INLINE_BRANCHING'),
+      ].forEach(onNodeComplete);
+    }
+
+    return (
+      cursor.requireClosest('INLINE_BRANCHING').prev ||
+      cursor.requireClosest('BRANCH')
+    );
   },
 
   L_SQUARE(token, cursor) {
-    throw new Error('Function not implemented.');
+    return cursor
+      .createChild({ token, type: 'COMPOUND' }, { insertNext: true })
+      .createChild({ type: 'BRANCH_LIST' }, { insertNext: true })
+      .createChild({ type: 'BRANCH' }, { insertNext: true });
   },
 
-  R_SQUARE(token, cursor) {
-    throw new Error('Function not implemented.');
+  R_SQUARE(_token, cursor, onNodeComplete) {
+    const node =
+      cursor.requireClosest('COMPOUND').prev || cursor.requireClosest('BRANCH');
+
+    onNodeComplete?.(node);
+
+    return node;
   },
 
   HEAD_REF(token, cursor) {
-    throw new Error('Function not implemented.');
+    return cursor
+      .requireClosest('BRANCH')
+      .createChild({ token, type: 'HEAD_REF' })
+      .insertAfter(cursor);
   },
 
-  PREV_REF(token, cursor) {
-    throw new Error('Function not implemented.');
+  PREV_SEQ_REF(token, cursor) {
+    return cursor
+      .requireClosest('BRANCH')
+      .createChild({ token, type: 'PREV_SEQ_REF' })
+      .insertAfter(cursor);
   },
 
   SORTED_SET_INIT(token, cursor) {
-    throw new Error('Function not implemented.');
+    return cursor
+      .requireClosest('BRANCH')
+      .createChild({ token, type: 'SORTED_SET_INIT' })
+      .insertAfter(cursor);
   },
 };

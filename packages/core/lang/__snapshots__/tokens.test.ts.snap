@@ -203,7 +203,7 @@ exports[`parse tokenize works on complex input 1`] = `
         "offset": 99,
       },
     },
-    "type": "PREV_REF",
+    "type": "PREV_SEQ_REF",
     "value": "... ",
   },
   {
