@@ -1,70 +1,50 @@
 import { Token, TokenType } from './tokens';
 
 export type AstNodeType =
-  | 'BRANCH_LIST'
+  | 'ROOT'
   | 'BRANCH'
   | 'COMPOUND'
   | 'ATOM'
   | 'INLINE_BRANCHING'
   | 'PARENTHETICAL'
-  | 'END_BLOCK'
   | 'HEAD_REF'
   | 'PREV_SEQ_REF'
   | 'SORTED_SET_INIT';
-
-export type AstNodeInit = {
-  type: AstNodeType;
-  children?: AstNode[];
-  parent?: AstNode;
-  prev?: AstNode;
-  next?: AstNode;
-  token?: Token;
-};
 
 export type Predicate = string | string[] | ((node: AstNode) => boolean);
 
 export type AstParseEventHandler = (node: AstNode) => void;
 
-export const normalizePredicate = (
-  predicate: Predicate,
-): ((node: AstNode) => boolean) => {
-  if (typeof predicate === 'string') {
-    predicate = [predicate];
-  }
-
-  if (Array.isArray(predicate)) {
-    const types = predicate;
-    return node => types.includes(node.type);
-  }
-
-  return predicate;
+export type AstNodeInit = {
+  type: AstNodeType;
+  children?: AstNode[];
+  parent?: AstNode;
+  token?: Token;
 };
 
 export class AstNode {
   type: AstNodeType;
   children: AstNode[];
   parent: AstNode | null;
-  prev: AstNode | null;
-  next: AstNode | null;
   token: Token | null;
-  computed: Record<string, any>;
+
+  // When parsing, we can store arbitrary data on the node.
+  _cache: Record<string, any>;
 
   constructor(init: AstNodeInit) {
     this.type = init.type;
     this.children = init.children || [];
     this.parent = init.parent || null;
-    this.prev = init.prev || null;
-    this.next = init.next || null;
     this.token = init.token || null;
-    this.computed = {};
+    this._cache = {};
   }
 
   static fromTokens(
     tokens: Token[],
     onNodeComplete?: (node: AstNode) => void,
   ): AstNode {
-    const root = new AstNode({ type: 'BRANCH_LIST' });
-    let cursor = root.createChild({ type: 'BRANCH' }, { insertNext: true });
+    const root = new AstNode({ type: 'ROOT' });
+    let cursor = root.createChild({ type: 'BRANCH' });
 
     for (const token of tokens) {
       const handler = astTokenHandlers[token.type];
@@ -73,9 +53,7 @@ export class AstNode {
         throw new Error(`No handler for token type ${token.type}`);
       }
 
-      const next = handler(token, cursor, onNodeComplete);
-      cursor.insertNext(next);
-      cursor = next;
+      cursor = handler(token, cursor, onNodeComplete);
     }
 
     if (onNodeComplete) {
@@ -93,46 +71,24 @@ export class AstNode {
     return this.parent || this;
   }
 
-  insertAfter(node: AstNode): AstNode {
-    node.insertNext(this);
-    return this;
-  }
-
-  insertNext(node: AstNode): AstNode {
-    if (node.prev) {
-      node.prev.next = node.next;
-    }
-
-    if (node.next) {
-      node.next.prev = node.prev;
-    }
-
-    this.next = node;
-    node.prev = this;
-
-    return this;
-  }
-
-  createChild(
-    init: AstNodeInit,
-    options?: {
-      insertNext: boolean;
-    },
-  ): AstNode {
-    const { insertNext = false } = options || {};
-
-    const child = new AstNode({
-      ...init,
-      parent: this,
-    });
-
+  createChild(init: AstNode | AstNodeInit): AstNode {
+    const child = init instanceof AstNode ? init : new AstNode(init);
+    child.parent = this;
     this.children.push(child);
+    return child;
+  }
 
-    if (insertNext) {
-      this.insertNext(child);
+  requireClosestBefore(
+    predicate: Predicate,
+    antipredicate: Predicate,
+  ): AstNode {
+    const node = this.findClosestBefore(predicate, antipredicate);
+
+    if (!node) {
+      throw new Error('Could not find closest node before antipredicate');
     }
 
-    return child;
+    return node;
   }
 
   requireParent(): AstNode {
@@ -141,6 +97,16 @@ export class AstNode {
     }
 
     throw new Error('Node has no parent');
+  }
+
+  requireFarthest(predicate: Predicate): AstNode {
+    const node = this.findFarthest(predicate);
+
+    if (!node) {
+      throw new Error('Could not find farthest node');
+    }
+
+    return node;
   }
 
   requireClosest(predicate: Predicate): AstNode {
@@ -165,19 +131,10 @@ export class AstNode {
     );
   }
 
-  requirePrev(predicate: Predicate): AstNode {
-    return this.traverseOrThrow(
-      node => node.prev,
-      predicate,
-      'Could not find previous node',
-    );
-  }
-
-  requireNext(predicate: Predicate): AstNode {
-    return this.traverseOrThrow(
-      node => node.parent,
-      predicate,
-      'Could not find next node',
+  findFarthest(predicate: Predicate): AstNode | null {
+    predicate = normalizePredicate(predicate);
+    return (
+      this.parent?.findFarthest(predicate) || (predicate(this) ? this : null)
     );
   }
 
@@ -186,16 +143,26 @@ export class AstNode {
     return predicate(this) ? this : this.findAncestor(predicate);
   }
 
+  findClosestBefore(
+    predicate: Predicate,
+    antipredicate: Predicate,
+  ): AstNode | null {
+    predicate = normalizePredicate(predicate);
+    antipredicate = normalizePredicate(antipredicate);
+
+    if (predicate(this)) {
+      return this;
+    }
+
+    if (antipredicate(this)) {
+      return null;
+    }
+
+    return this.parent?.findClosestBefore(predicate, antipredicate) || null;
+  }
+
   findAncestor(predicate: Predicate): AstNode | null {
     return this.traverse(node => node.parent, predicate);
-  }
-
-  findPrev(predicate: Predicate) {
-    return this.traverse(node => node.prev, predicate);
-  }
-
-  findNext(predicate: Predicate) {
-    return this.traverse(node => node.next, predicate);
   }
 
   traverse(selector: (node: AstNode) => AstNode | null, predicate: Predicate) {
@@ -227,6 +194,11 @@ export class AstNode {
   }
 }
 
+const maybeCallback = <T>(value: T, callback?: (value: T) => void) => {
+  callback?.(value);
+  return value;
+};
+
 export const astTokenHandlers: Record<
   TokenType,
   (
@@ -235,114 +207,164 @@ export const astTokenHandlers: Record<
     onNodeComplete?: (node: AstNode) => void,
   ) => AstNode
 > = {
-  ATOM(token, cursor, onNodeComplete) {
-    const node = cursor
+  ATOM(
+    token: Token,
+    cursor: AstNode,
+    onNodeComplete?: ((node: AstNode) => void) | undefined,
+  ): AstNode {
+    return maybeCallback(
+      cursor.requireClosest('BRANCH').createChild({ type: 'ATOM', token }),
+      onNodeComplete,
+    );
+  },
+
+  HEAD_REF(
+    token: Token,
+    cursor: AstNode,
+    onNodeComplete?: ((node: AstNode) => void) | undefined,
+  ): AstNode {
+    return maybeCallback(
+      cursor.requireClosest('BRANCH').createChild({ type: 'HEAD_REF', token }),
+      onNodeComplete,
+    );
+  },
+
+  PREV_SEQ_REF(
+    token: Token,
+    cursor: AstNode,
+    onNodeComplete?: ((node: AstNode) => void) | undefined,
+  ): AstNode {
+    return maybeCallback(
+      cursor
+        .requireClosest('BRANCH')
+        .createChild({ type: 'PREV_SEQ_REF', token }),
+      onNodeComplete,
+    );
+  },
+
+  SORTED_SET_INIT(token: Token, cursor: AstNode): AstNode {
+    return cursor
       .requireClosest('BRANCH')
-      .createChild({ token, type: 'ATOM' })
-      .insertAfter(cursor);
-
-    return node;
+      .createChild({ type: 'SORTED_SET_INIT', token });
   },
 
-  BRANCH_SEPARATOR(token, cursor, onNodeComplete) {
-    const node = cursor
-      .requireClosest('BRANCH_LIST')
-      .createChild({ token, type: 'BRANCH' })
-      .insertAfter(cursor);
-
-    onNodeComplete?.(cursor);
-
-    return node;
+  BRANCH_SEPARATOR(token: Token, cursor: AstNode): AstNode {
+    return cursor
+      .requireClosest(['INLINE_BRANCHING', 'PARENTHETICAL', 'COMPOUND'])
+      .createChild({ type: 'BRANCH', token });
   },
 
-  PART_SEPARATOR(_token, cursor) {
+  PART_SEPARATOR(_token: Token, cursor: AstNode): AstNode {
     return cursor;
   },
 
-  L_PAREN(token, cursor) {
+  L_PAREN(token: Token, cursor: AstNode): AstNode {
     return cursor
-      .createChild({ token, type: 'PARENTHETICAL' }, { insertNext: true })
-      .createChild({ type: 'BRANCH_LIST' }, { insertNext: true })
-      .createChild({ type: 'BRANCH' }, { insertNext: true });
+      .createChild({
+        type: 'PARENTHETICAL',
+        token,
+      })
+      .createChild({
+        type: 'BRANCH',
+      });
   },
 
-  R_PAREN(_token, cursor, onNodeComplete) {
-    const parenthetical = cursor.requireClosest('PARENTHETICAL');
+  R_PAREN(
+    _token: Token,
+    cursor: AstNode,
+    onNodeComplete?: ((node: AstNode) => void) | undefined,
+  ): AstNode {
+    const parenthetical = cursor.requireClosestBefore('PARENTHETICAL', [
+      'INLINE_BRANCHING',
+      'COMPOUND',
+    ]);
 
+    // Tolerate stray closing parens
     if (!parenthetical) {
       return cursor;
     }
 
-    const next = cursor
-      .createChild({ type: 'END_BLOCK' })
-      .insertAfter(parenthetical);
+    onNodeComplete?.(parenthetical);
 
-    if (onNodeComplete) {
-      [
-        cursor.requireClosest('BRANCH'),
-        cursor.requireClosest('BRANCH_LIST'),
-        cursor.requireClosest('PARENTHETICAL'),
-      ].forEach(onNodeComplete);
+    // Return the parent of the parenthetical so we can continue in the
+    // previous parsing context.
+    return parenthetical.requireParent();
+  },
+
+  L_CURLY(token: Token, cursor: AstNode): AstNode {
+    return cursor
+      .createChild({
+        type: 'INLINE_BRANCHING',
+        token,
+      })
+      .createChild({
+        type: 'BRANCH',
+      });
+  },
+
+  R_CURLY(
+    _token: Token,
+    cursor: AstNode,
+    onNodeComplete?: ((node: AstNode) => void) | undefined,
+  ): AstNode {
+    const inlineBranching = cursor.requireClosestBefore('INLINE_BRANCHING', [
+      'PARENTHETICAL',
+      'COMPOUND',
+    ]);
+
+    // Tolerate stray closing curlies
+    if (!inlineBranching) {
+      return cursor;
     }
 
-    return next;
+    onNodeComplete?.(inlineBranching);
+
+    return inlineBranching;
   },
 
-  L_CURLY(token, cursor) {
+  L_SQUARE(token: Token, cursor: AstNode): AstNode {
     return cursor
-      .createChild({ token, type: 'INLINE_BRANCHING' }, { insertNext: true })
-      .createChild({ type: 'BRANCH_LIST' }, { insertNext: true })
-      .createChild({ type: 'BRANCH' }, { insertNext: true });
+      .createChild({
+        type: 'COMPOUND',
+        token,
+      })
+      .createChild({
+        type: 'BRANCH',
+      });
   },
 
-  R_CURLY(_token, cursor, onNodeComplete) {
-    if (onNodeComplete) {
-      [
-        cursor.requireClosest('BRANCH'),
-        cursor.requireClosest('INLINE_BRANCHING'),
-      ].forEach(onNodeComplete);
+  R_SQUARE(
+    _token: Token,
+    cursor: AstNode,
+    onNodeComplete?: ((node: AstNode) => void) | undefined,
+  ): AstNode {
+    const compound = cursor.requireClosestBefore('COMPOUND', [
+      'PARENTHETICAL',
+      'INLINE_BRANCHING',
+    ]);
+
+    // Tolerate stray closing squares
+    if (!compound) {
+      return cursor;
     }
 
-    return (
-      cursor.requireClosest('INLINE_BRANCHING').prev ||
-      cursor.requireClosest('BRANCH')
-    );
+    onNodeComplete?.(compound);
+
+    return compound;
   },
+};
 
-  L_SQUARE(token, cursor) {
-    return cursor
-      .createChild({ token, type: 'COMPOUND' }, { insertNext: true })
-      .createChild({ type: 'BRANCH_LIST' }, { insertNext: true })
-      .createChild({ type: 'BRANCH' }, { insertNext: true });
-  },
+export const normalizePredicate = (
+  predicate: Predicate,
+): ((node: AstNode) => boolean) => {
+  if (typeof predicate === 'string') {
+    predicate = [predicate];
+  }
 
-  R_SQUARE(_token, cursor, onNodeComplete) {
-    const node =
-      cursor.requireClosest('COMPOUND').prev || cursor.requireClosest('BRANCH');
+  if (Array.isArray(predicate)) {
+    const types = predicate;
+    return node => types.includes(node.type);
+  }
 
-    onNodeComplete?.(node);
-
-    return node;
-  },
-
-  HEAD_REF(token, cursor) {
-    return cursor
-      .requireClosest('BRANCH')
-      .createChild({ token, type: 'HEAD_REF' })
-      .insertAfter(cursor);
-  },
-
-  PREV_SEQ_REF(token, cursor) {
-    return cursor
-      .requireClosest('BRANCH')
-      .createChild({ token, type: 'PREV_SEQ_REF' })
-      .insertAfter(cursor);
-  },
-
-  SORTED_SET_INIT(token, cursor) {
-    return cursor
-      .requireClosest('BRANCH')
-      .createChild({ token, type: 'SORTED_SET_INIT' })
-      .insertAfter(cursor);
-  },
+  return predicate;
 };

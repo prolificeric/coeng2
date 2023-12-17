@@ -32,9 +32,13 @@ export type TokenParser = {
   parse: (input: string) => string | null;
 };
 
-export const RegExpParser = (regexp: RegExp): TokenParser['parse'] => {
+export const RegExpParser = (
+  regexp: RegExp,
+  mod?: (match: string[]) => string,
+): TokenParser['parse'] => {
   return (input: string) => {
-    return regexp.exec(input)?.[0] ?? null;
+    const match = regexp.exec(input) ?? null;
+    return match ? (mod ? mod(match) : match[0]) : null;
   };
 };
 
@@ -72,18 +76,37 @@ export const defaultTokenParsers: TokenParser[] = [
     parse: RegExpParser(/^[\n\t, ]*\]/),
   },
   {
+    // [: z b a c] -> [:a b c z]
     type: 'SORTED_SET_INIT',
     parse: RegExpParser(/^:/),
   },
   {
+    // john { knows mary (knows &) } -> john knows mary, mary knows john
     type: 'HEAD_REF',
     parse: RegExpParser(/^&/),
   },
   {
+    // john knows {max, mary ([...] since 2000)} -> john knows max, [john knows mary] since 2000
     type: 'PREV_SEQ_REF',
-    parse: RegExpParser(/^\.{3}[^.]/),
+    parse: RegExpParser(/^\.{3}(?!\.)/),
   },
   {
+    // x..y
+    type: 'PREV_SEQ_REF',
+    parse: RegExpParser(/^[0-9]+\.{2}[0-9]+/),
+  },
+  {
+    // ..y
+    type: 'PREV_SEQ_REF',
+    parse: RegExpParser(/^[0-9]+\.{2}(?!\.)/),
+  },
+  {
+    // x..
+    type: 'PREV_SEQ_REF',
+    parse: RegExpParser(/^\.{2}[0-9]+/),
+  },
+  {
+    // <<arbitrary string goes here>>
     type: 'ATOM',
     parse: RegExpParser(/^<<(.|\n)*?>>/),
   },

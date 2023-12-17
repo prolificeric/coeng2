@@ -1,3 +1,5 @@
+import { tokenize } from './lang/tokens';
+import { AstNode, AstNodeType } from './lang/ast';
 import { cached } from './utils';
 import { TriggerDirective } from './trigger';
 
@@ -19,6 +21,10 @@ export type ConceptTag =
   | 'TRIGGER_NAME'
   | 'TRIGGER';
 
+export type ParseCache = {
+  permutations?: Concept[][];
+};
+
 export class Concept {
   key: string;
   parts: Concept[];
@@ -27,6 +33,18 @@ export class Concept {
   constructor(key: string, parts: Concept[] = []) {
     this.key = key;
     this.parts = parts;
+  }
+
+  static fromParts(parts: Concept[]) {
+    if (parts.length === 0) {
+      return new Concept('');
+    }
+
+    if (parts.length === 1) {
+      return parts[0];
+    }
+
+    return new Concept(Concept.joinKeys(parts), parts);
   }
 
   get size(): number {
@@ -51,7 +69,7 @@ export class Concept {
     return this.getTagSet().has(tag);
   }
 
-  toMask = cached<Concept>(() => {
+  toMask = cached<Concept>((): Concept => {
     if (this.is('LITERAL')) {
       return this;
     }
@@ -111,4 +129,112 @@ export class Concept {
 
     return set;
   });
+
+  static joinKeys(parts: Concept[]): string {
+    if (parts.length === 0) {
+      return '';
+    }
+
+    if (parts.length === 1) {
+      return parts[0].key;
+    }
+
+    return parts.map(part => part.key).join(' ');
+  }
 }
+
+export const parseConcept = (source: string): Concept => {
+  return parseConcepts(source)[0] || null;
+};
+
+export const parseConcepts = (source: string): Concept[] => {
+  const concepts: Concept[] = [];
+
+  AstNode.fromTokens(tokenize(source), node => {
+    astVisitors[node.type]?.call(astVisitors, node, concepts);
+  });
+
+  return concepts;
+};
+
+export type ParsedAstNode = AstNode & {
+  _cache: ParseCache;
+  children: ParsedAstNode[];
+};
+
+export const astVisitors: Partial<{
+  [type in AstNodeType]: (node: ParsedAstNode, concepts: Concept[]) => void;
+}> = {
+  ATOM(node) {
+    node._cache.permutations = [[new Concept(node.token!.value)]];
+  },
+
+  BRANCH(node) {
+    node._cache.permutations = combinePermutationSegments(
+      node.children.map(child => child._cache.permutations).filter(Boolean),
+    );
+  },
+
+  COMPOUND(node) {
+    const permutations: Concept[][] = (node._cache.permutations = []);
+
+    node.children
+      .filter(child => child.type === 'BRANCH')
+      .forEach((branch: ParsedAstNode) => {
+        branch._cache.permutations?.forEach(branchPermutation => {
+          permutations.push([Concept.fromParts(branchPermutation)]);
+        });
+      });
+  },
+
+  PARENTHETICAL(parenthetical, concepts) {
+    const parent: ParsedAstNode | null = parenthetical.parent;
+
+    if (!parent) {
+      throw new Error('PARENTHETICAL must have a parent.');
+    }
+
+    parenthetical.children
+      .filter(child => child.type === 'BRANCH')
+      .forEach((branch: ParsedAstNode) => {
+        branch._cache.permutations?.forEach(branchPermutation => {
+          parent._cache.permutations?.forEach(parentPermutation => {
+            // concepts.push(Concept.fromParts([parentPermutation....branchPermutation]));
+          });
+        });
+      });
+  },
+};
+
+export const combinePermutationSegments = (
+  segments: Concept[][][],
+): Concept[][] => {
+  const [firstSegmentPermutations, ...rest] = segments;
+
+  if (!firstSegmentPermutations) {
+    return [];
+  }
+
+  const restCombined = combinePermutationSegments(rest);
+
+  if (!restCombined.length) {
+    return firstSegmentPermutations;
+  }
+
+  if (!firstSegmentPermutations.length) {
+    return restCombined;
+  }
+
+  const combinedPartPermutations: Concept[][] = [];
+
+  firstSegmentPermutations.forEach(permutation => {
+    restCombined.forEach(combinedPartPermutation => {
+      combinedPartPermutations.push([
+        ...permutation,
+        ...combinedPartPermutation,
+      ]);
+    });
+  });
+
+  return combinedPartPermutations;
+};
