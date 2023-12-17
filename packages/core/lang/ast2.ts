@@ -1,19 +1,14 @@
-import { EventEmitter } from 'events';
 import { Token } from './tokens';
-
-export abstract class AstNode<
+export class AstNode<
   TParent extends AstNode | never = any,
   TChild extends AstNode | never = any,
-> extends EventEmitter {
+> {
   token: Token | null = null;
   parent: TParent | null = null;
   children: TChild[] = [];
 
-  abstract consumeToken(token: Token): AstNode;
-
-  setToken(token: Token | null) {
-    this.token = token;
-    return this;
+  constructor(init?: { token?: Token | null }) {
+    this.token = init?.token ?? null;
   }
 
   appendChild(child: TChild) {
@@ -60,39 +55,21 @@ export abstract class AstNode<
   }
 }
 
-export class AtomNode extends AstNode<BranchNode, ParentheticalNode> {
-  consumeToken(token: Token) {
-    switch (token.type) {
-      case 'ATOM':
-      default:
-        throw new Error(`Unexpected token: ${token.type}`);
-    }
-
-    return this;
-  }
-}
+export class AtomNode extends AstNode<BranchNode, ParentheticalNode> {}
 
 export class BranchNode extends AstNode<
   BranchingNode,
   AtomNode | BranchingNode
-> {
-  consumeToken() {
-    return this;
-  }
-}
+> {}
 
 export class BranchingNode extends AstNode<
   BranchNode,
   BranchNode | ParentheticalNode
-> {
-  consumeToken() {
-    return this;
-  }
+> {}
 
-  branch(): BranchNode {
-    return new BranchNode().appendTo(this);
-  }
-}
+export class RootNode extends BranchingNode {}
+
+export class InlineBranchingNode extends BranchingNode {}
 
 export class CompoundNode extends BranchingNode {}
 
@@ -103,6 +80,13 @@ export class SortedSetInitNode extends AstNode<
   ParentheticalNode
 > {}
 
-export class HeadRef extends AstNode<BranchNode, ParentheticalNode> {}
+export class RefNode extends AstNode<BranchNode, ParentheticalNode> {
+  start: number | null = null;
+  end: number | null = null;
 
-export class RangeRef extends AstNode<BranchNode, ParentheticalNode> {}
+  constructor(start: number | null = null, end: number | null = null) {
+    super();
+    this.start = start;
+    this.end = end ?? start;
+  }
+}
