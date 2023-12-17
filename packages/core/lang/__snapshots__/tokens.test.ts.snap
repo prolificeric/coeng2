@@ -6,7 +6,7 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 41,
-        "line": 22,
+        "line": 21,
         "offset": 19,
       },
       "start": {
@@ -22,12 +22,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 42,
-        "line": 23,
+        "line": 21,
         "offset": 20,
       },
       "start": {
         "column": 41,
-        "line": 22,
+        "line": 21,
         "offset": 19,
       },
     },
@@ -38,12 +38,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 11,
-        "line": 25,
+        "line": 22,
         "offset": 32,
       },
       "start": {
         "column": 42,
-        "line": 23,
+        "line": 21,
         "offset": 20,
       },
     },
@@ -57,12 +57,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 16,
-        "line": 26,
+        "line": 22,
         "offset": 37,
       },
       "start": {
         "column": 11,
-        "line": 25,
+        "line": 22,
         "offset": 32,
       },
     },
@@ -73,12 +73,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 17,
-        "line": 27,
+        "line": 22,
         "offset": 38,
       },
       "start": {
         "column": 16,
-        "line": 26,
+        "line": 22,
         "offset": 37,
       },
     },
@@ -89,12 +89,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 13,
-        "line": 29,
+        "line": 23,
         "offset": 52,
       },
       "start": {
         "column": 17,
-        "line": 27,
+        "line": 22,
         "offset": 38,
       },
     },
@@ -108,12 +108,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 23,
-        "line": 30,
+        "line": 23,
         "offset": 62,
       },
       "start": {
         "column": 13,
-        "line": 29,
+        "line": 23,
         "offset": 52,
       },
     },
@@ -124,12 +124,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 13,
-        "line": 32,
+        "line": 24,
         "offset": 75,
       },
       "start": {
         "column": 23,
-        "line": 30,
+        "line": 23,
         "offset": 62,
       },
     },
@@ -143,12 +143,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 23,
-        "line": 33,
+        "line": 24,
         "offset": 85,
       },
       "start": {
         "column": 13,
-        "line": 32,
+        "line": 24,
         "offset": 75,
       },
     },
@@ -159,12 +159,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 13,
-        "line": 35,
+        "line": 25,
         "offset": 98,
       },
       "start": {
         "column": 23,
-        "line": 33,
+        "line": 24,
         "offset": 85,
       },
     },
@@ -178,12 +178,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 14,
-        "line": 36,
+        "line": 25,
         "offset": 99,
       },
       "start": {
         "column": 13,
-        "line": 35,
+        "line": 25,
         "offset": 98,
       },
     },
@@ -194,12 +194,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 17,
-        "line": 37,
+        "line": 25,
         "offset": 102,
       },
       "start": {
         "column": 14,
-        "line": 36,
+        "line": 25,
         "offset": 99,
       },
     },
@@ -210,12 +210,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 18,
-        "line": 38,
+        "line": 25,
         "offset": 103,
       },
       "start": {
         "column": 17,
-        "line": 37,
+        "line": 25,
         "offset": 102,
       },
     },
@@ -226,12 +226,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 23,
-        "line": 39,
+        "line": 25,
         "offset": 108,
       },
       "start": {
         "column": 18,
-        "line": 38,
+        "line": 25,
         "offset": 103,
       },
     },
@@ -242,12 +242,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 24,
-        "line": 40,
+        "line": 25,
         "offset": 109,
       },
       "start": {
         "column": 23,
-        "line": 39,
+        "line": 25,
         "offset": 108,
       },
     },
@@ -258,12 +258,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 25,
-        "line": 41,
+        "line": 25,
         "offset": 110,
       },
       "start": {
         "column": 24,
-        "line": 40,
+        "line": 25,
         "offset": 109,
       },
     },
@@ -274,12 +274,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 40,
-        "line": 42,
+        "line": 25,
         "offset": 125,
       },
       "start": {
         "column": 25,
-        "line": 41,
+        "line": 25,
         "offset": 110,
       },
     },
@@ -290,12 +290,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 41,
-        "line": 43,
+        "line": 25,
         "offset": 126,
       },
       "start": {
         "column": 40,
-        "line": 42,
+        "line": 25,
         "offset": 125,
       },
     },
@@ -306,12 +306,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 42,
-        "line": 44,
+        "line": 25,
         "offset": 127,
       },
       "start": {
         "column": 41,
-        "line": 43,
+        "line": 25,
         "offset": 126,
       },
     },
@@ -322,12 +322,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 43,
-        "line": 45,
+        "line": 25,
         "offset": 128,
       },
       "start": {
         "column": 42,
-        "line": 44,
+        "line": 25,
         "offset": 127,
       },
     },
@@ -338,12 +338,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 48,
-        "line": 46,
+        "line": 25,
         "offset": 133,
       },
       "start": {
         "column": 43,
-        "line": 45,
+        "line": 25,
         "offset": 128,
       },
     },
@@ -354,12 +354,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 49,
-        "line": 47,
+        "line": 25,
         "offset": 134,
       },
       "start": {
         "column": 48,
-        "line": 46,
+        "line": 25,
         "offset": 133,
       },
     },
@@ -370,12 +370,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 53,
-        "line": 48,
+        "line": 25,
         "offset": 138,
       },
       "start": {
         "column": 49,
-        "line": 47,
+        "line": 25,
         "offset": 134,
       },
     },
@@ -386,12 +386,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 11,
-        "line": 50,
+        "line": 26,
         "offset": 149,
       },
       "start": {
         "column": 53,
-        "line": 48,
+        "line": 25,
         "offset": 138,
       },
     },
@@ -405,12 +405,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 12,
-        "line": 51,
+        "line": 26,
         "offset": 150,
       },
       "start": {
         "column": 11,
-        "line": 50,
+        "line": 26,
         "offset": 149,
       },
     },
@@ -421,12 +421,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 13,
-        "line": 52,
+        "line": 26,
         "offset": 151,
       },
       "start": {
         "column": 12,
-        "line": 51,
+        "line": 26,
         "offset": 150,
       },
     },
@@ -437,12 +437,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 14,
-        "line": 53,
+        "line": 26,
         "offset": 152,
       },
       "start": {
         "column": 13,
-        "line": 52,
+        "line": 26,
         "offset": 151,
       },
     },
@@ -453,12 +453,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 34,
-        "line": 54,
+        "line": 26,
         "offset": 172,
       },
       "start": {
         "column": 14,
-        "line": 53,
+        "line": 26,
         "offset": 152,
       },
     },
@@ -469,12 +469,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 35,
-        "line": 55,
+        "line": 26,
         "offset": 173,
       },
       "start": {
         "column": 34,
-        "line": 54,
+        "line": 26,
         "offset": 172,
       },
     },
@@ -485,12 +485,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 11,
-        "line": 58,
+        "line": 28,
         "offset": 189,
       },
       "start": {
         "column": 35,
-        "line": 55,
+        "line": 26,
         "offset": 173,
       },
     },
@@ -505,12 +505,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 16,
-        "line": 59,
+        "line": 28,
         "offset": 194,
       },
       "start": {
         "column": 11,
-        "line": 58,
+        "line": 28,
         "offset": 189,
       },
     },
@@ -521,12 +521,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 21,
-        "line": 60,
+        "line": 28,
         "offset": 199,
       },
       "start": {
         "column": 16,
-        "line": 59,
+        "line": 28,
         "offset": 194,
       },
     },
@@ -537,12 +537,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 35,
-        "line": 61,
+        "line": 28,
         "offset": 213,
       },
       "start": {
         "column": 21,
-        "line": 60,
+        "line": 28,
         "offset": 199,
       },
     },
@@ -553,12 +553,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 11,
-        "line": 64,
+        "line": 30,
         "offset": 229,
       },
       "start": {
         "column": 35,
-        "line": 61,
+        "line": 28,
         "offset": 213,
       },
     },
@@ -573,12 +573,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 23,
-        "line": 65,
+        "line": 30,
         "offset": 241,
       },
       "start": {
         "column": 11,
-        "line": 64,
+        "line": 30,
         "offset": 229,
       },
     },
@@ -589,12 +589,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 24,
-        "line": 66,
+        "line": 30,
         "offset": 242,
       },
       "start": {
         "column": 23,
-        "line": 65,
+        "line": 30,
         "offset": 241,
       },
     },
@@ -605,12 +605,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 28,
-        "line": 70,
+        "line": 33,
         "offset": 302,
       },
       "start": {
         "column": 24,
-        "line": 66,
+        "line": 30,
         "offset": 242,
       },
     },
@@ -626,12 +626,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 11,
-        "line": 73,
+        "line": 35,
         "offset": 314,
       },
       "start": {
         "column": 28,
-        "line": 70,
+        "line": 33,
         "offset": 302,
       },
     },
@@ -646,12 +646,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 15,
-        "line": 74,
+        "line": 35,
         "offset": 318,
       },
       "start": {
         "column": 11,
-        "line": 73,
+        "line": 35,
         "offset": 314,
       },
     },
@@ -662,12 +662,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 16,
-        "line": 75,
+        "line": 35,
         "offset": 319,
       },
       "start": {
         "column": 15,
-        "line": 74,
+        "line": 35,
         "offset": 318,
       },
     },
@@ -678,12 +678,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 21,
-        "line": 76,
+        "line": 35,
         "offset": 324,
       },
       "start": {
         "column": 16,
-        "line": 75,
+        "line": 35,
         "offset": 319,
       },
     },
@@ -694,12 +694,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 22,
-        "line": 77,
+        "line": 35,
         "offset": 325,
       },
       "start": {
         "column": 21,
-        "line": 76,
+        "line": 35,
         "offset": 324,
       },
     },
@@ -710,12 +710,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 23,
-        "line": 78,
+        "line": 35,
         "offset": 326,
       },
       "start": {
         "column": 22,
-        "line": 77,
+        "line": 35,
         "offset": 325,
       },
     },
@@ -726,12 +726,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 9,
-        "line": 80,
+        "line": 36,
         "offset": 335,
       },
       "start": {
         "column": 23,
-        "line": 78,
+        "line": 35,
         "offset": 326,
       },
     },
@@ -745,12 +745,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 10,
-        "line": 81,
+        "line": 36,
         "offset": 336,
       },
       "start": {
         "column": 9,
-        "line": 80,
+        "line": 36,
         "offset": 335,
       },
     },
@@ -761,12 +761,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 9,
-        "line": 84,
+        "line": 38,
         "offset": 350,
       },
       "start": {
         "column": 10,
-        "line": 81,
+        "line": 36,
         "offset": 336,
       },
     },
@@ -781,12 +781,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 10,
-        "line": 85,
+        "line": 38,
         "offset": 351,
       },
       "start": {
         "column": 9,
-        "line": 84,
+        "line": 38,
         "offset": 350,
       },
     },
@@ -797,12 +797,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 14,
-        "line": 86,
+        "line": 38,
         "offset": 355,
       },
       "start": {
         "column": 10,
-        "line": 85,
+        "line": 38,
         "offset": 351,
       },
     },
@@ -813,12 +813,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 15,
-        "line": 87,
+        "line": 38,
         "offset": 356,
       },
       "start": {
         "column": 14,
-        "line": 86,
+        "line": 38,
         "offset": 355,
       },
     },
@@ -829,12 +829,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 20,
-        "line": 88,
+        "line": 38,
         "offset": 361,
       },
       "start": {
         "column": 15,
-        "line": 87,
+        "line": 38,
         "offset": 356,
       },
     },
@@ -845,12 +845,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 21,
-        "line": 89,
+        "line": 38,
         "offset": 362,
       },
       "start": {
         "column": 20,
-        "line": 88,
+        "line": 38,
         "offset": 361,
       },
     },
@@ -861,12 +861,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 31,
-        "line": 90,
+        "line": 38,
         "offset": 372,
       },
       "start": {
         "column": 21,
-        "line": 89,
+        "line": 38,
         "offset": 362,
       },
     },
@@ -877,12 +877,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 32,
-        "line": 91,
+        "line": 38,
         "offset": 373,
       },
       "start": {
         "column": 31,
-        "line": 90,
+        "line": 38,
         "offset": 372,
       },
     },
@@ -893,12 +893,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 33,
-        "line": 92,
+        "line": 38,
         "offset": 374,
       },
       "start": {
         "column": 32,
-        "line": 91,
+        "line": 38,
         "offset": 373,
       },
     },
@@ -909,12 +909,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 38,
-        "line": 93,
+        "line": 38,
         "offset": 379,
       },
       "start": {
         "column": 33,
-        "line": 92,
+        "line": 38,
         "offset": 374,
       },
     },
@@ -925,12 +925,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 39,
-        "line": 94,
+        "line": 38,
         "offset": 380,
       },
       "start": {
         "column": 38,
-        "line": 93,
+        "line": 38,
         "offset": 379,
       },
     },
@@ -941,12 +941,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 43,
-        "line": 95,
+        "line": 38,
         "offset": 384,
       },
       "start": {
         "column": 39,
-        "line": 94,
+        "line": 38,
         "offset": 380,
       },
     },
@@ -957,12 +957,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 9,
-        "line": 98,
+        "line": 40,
         "offset": 394,
       },
       "start": {
         "column": 43,
-        "line": 95,
+        "line": 38,
         "offset": 384,
       },
     },
@@ -977,12 +977,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 10,
-        "line": 99,
+        "line": 40,
         "offset": 395,
       },
       "start": {
         "column": 9,
-        "line": 98,
+        "line": 40,
         "offset": 394,
       },
     },
@@ -993,12 +993,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 11,
-        "line": 100,
+        "line": 40,
         "offset": 396,
       },
       "start": {
         "column": 10,
-        "line": 99,
+        "line": 40,
         "offset": 395,
       },
     },
@@ -1009,12 +1009,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 12,
-        "line": 101,
+        "line": 40,
         "offset": 397,
       },
       "start": {
         "column": 11,
-        "line": 100,
+        "line": 40,
         "offset": 396,
       },
     },
@@ -1025,12 +1025,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 14,
-        "line": 102,
+        "line": 40,
         "offset": 399,
       },
       "start": {
         "column": 12,
-        "line": 101,
+        "line": 40,
         "offset": 397,
       },
     },
@@ -1041,12 +1041,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 15,
-        "line": 103,
+        "line": 40,
         "offset": 400,
       },
       "start": {
         "column": 14,
-        "line": 102,
+        "line": 40,
         "offset": 399,
       },
     },
@@ -1057,12 +1057,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 18,
-        "line": 104,
+        "line": 40,
         "offset": 403,
       },
       "start": {
         "column": 15,
-        "line": 103,
+        "line": 40,
         "offset": 400,
       },
     },
@@ -1073,12 +1073,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 19,
-        "line": 105,
+        "line": 40,
         "offset": 404,
       },
       "start": {
         "column": 18,
-        "line": 104,
+        "line": 40,
         "offset": 403,
       },
     },
@@ -1089,12 +1089,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 20,
-        "line": 106,
+        "line": 40,
         "offset": 405,
       },
       "start": {
         "column": 19,
-        "line": 105,
+        "line": 40,
         "offset": 404,
       },
     },
@@ -1105,12 +1105,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 21,
-        "line": 107,
+        "line": 40,
         "offset": 406,
       },
       "start": {
         "column": 20,
-        "line": 106,
+        "line": 40,
         "offset": 405,
       },
     },
@@ -1121,12 +1121,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 27,
-        "line": 108,
+        "line": 40,
         "offset": 412,
       },
       "start": {
         "column": 21,
-        "line": 107,
+        "line": 40,
         "offset": 406,
       },
     },
@@ -1137,12 +1137,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 28,
-        "line": 109,
+        "line": 40,
         "offset": 413,
       },
       "start": {
         "column": 27,
-        "line": 108,
+        "line": 40,
         "offset": 412,
       },
     },
@@ -1153,12 +1153,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 32,
-        "line": 110,
+        "line": 40,
         "offset": 417,
       },
       "start": {
         "column": 28,
-        "line": 109,
+        "line": 40,
         "offset": 413,
       },
     },
@@ -1169,12 +1169,12 @@ exports[`parse tokenize works on complex input 1`] = `
     "loc": {
       "end": {
         "column": 33,
-        "line": 111,
+        "line": 40,
         "offset": 418,
       },
       "start": {
         "column": 32,
-        "line": 110,
+        "line": 40,
         "offset": 417,
       },
     },

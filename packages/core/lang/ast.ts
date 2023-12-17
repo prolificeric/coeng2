@@ -39,9 +39,9 @@ export class AstNode {
     this._cache = {};
   }
 
-  static fromTokens(
+  static parseTokens(
     tokens: Token[],
-    onNodeComplete?: (node: AstNode) => void,
+    onNodeComplete: (node: AstNode) => void = () => {},
   ): AstNode {
     const root = new AstNode({ type: 'ROOT' });
     let cursor = root.createChild({ type: 'BRANCH' });
@@ -56,11 +56,26 @@ export class AstNode {
       cursor = handler(token, cursor, onNodeComplete);
     }
 
-    if (onNodeComplete) {
-      let parent: AstNode | null = cursor;
+    // Close any open nodes
+    const closableNodes: AstNodeType[] = [
+      'ROOT',
+      'BRANCH',
+      'COMPOUND',
+      'INLINE_BRANCHING',
+      'PARENTHETICAL',
+    ];
 
-      while ((parent = parent.parent)) {
-        onNodeComplete(cursor);
+    let bubble = cursor.findClosest(closableNodes);
+
+    while (bubble) {
+      onNodeComplete(bubble);
+
+      if (bubble.type === 'PARENTHETICAL') {
+        // Direct parents of parentheticals are always already closed.
+        bubble = bubble.findAncestor('BRANCH');
+      } else {
+        // Close the next closable node
+        bubble = bubble.findAncestor(closableNodes);
       }
     }
 
@@ -194,7 +209,7 @@ export class AstNode {
   }
 }
 
-const maybeCallback = <T>(value: T, callback?: (value: T) => void) => {
+const applyCallback = <T>(value: T, callback?: (value: T) => void) => {
   callback?.(value);
   return value;
 };
@@ -204,37 +219,25 @@ export const astTokenHandlers: Record<
   (
     token: Token,
     cursor: AstNode,
-    onNodeComplete?: (node: AstNode) => void,
+    onNodeComplete: (node: AstNode) => void,
   ) => AstNode
 > = {
-  ATOM(
-    token: Token,
-    cursor: AstNode,
-    onNodeComplete?: ((node: AstNode) => void) | undefined,
-  ): AstNode {
-    return maybeCallback(
+  ATOM(token, cursor, onNodeComplete) {
+    return applyCallback(
       cursor.requireClosest('BRANCH').createChild({ type: 'ATOM', token }),
       onNodeComplete,
     );
   },
 
-  HEAD_REF(
-    token: Token,
-    cursor: AstNode,
-    onNodeComplete?: ((node: AstNode) => void) | undefined,
-  ): AstNode {
-    return maybeCallback(
+  HEAD_REF(token, cursor, onNodeComplete) {
+    return applyCallback(
       cursor.requireClosest('BRANCH').createChild({ type: 'HEAD_REF', token }),
       onNodeComplete,
     );
   },
 
-  PREV_SEQ_REF(
-    token: Token,
-    cursor: AstNode,
-    onNodeComplete?: ((node: AstNode) => void) | undefined,
-  ): AstNode {
-    return maybeCallback(
+  PREV_SEQ_REF(token, cursor, onNodeComplete) {
+    return applyCallback(
       cursor
         .requireClosest('BRANCH')
         .createChild({ type: 'PREV_SEQ_REF', token }),
@@ -242,23 +245,27 @@ export const astTokenHandlers: Record<
     );
   },
 
-  SORTED_SET_INIT(token: Token, cursor: AstNode): AstNode {
+  SORTED_SET_INIT(token, cursor, onNodeComplete) {
     return cursor
       .requireClosest('BRANCH')
       .createChild({ type: 'SORTED_SET_INIT', token });
   },
 
-  BRANCH_SEPARATOR(token: Token, cursor: AstNode): AstNode {
-    return cursor
+  BRANCH_SEPARATOR(token, cursor, onNodeComplete) {
+    const nextBranch = cursor
       .requireClosest(['INLINE_BRANCHING', 'PARENTHETICAL', 'COMPOUND'])
       .createChild({ type: 'BRANCH', token });
+
+    applyCallback(cursor.requireClosest('BRANCH'), onNodeComplete);
+
+    return nextBranch;
   },
 
-  PART_SEPARATOR(_token: Token, cursor: AstNode): AstNode {
+  PART_SEPARATOR(token, cursor, onNodeComplete) {
     return cursor;
   },
 
-  L_PAREN(token: Token, cursor: AstNode): AstNode {
+  L_PAREN(token, cursor, onNodeComplete) {
     return cursor
       .createChild({
         type: 'PARENTHETICAL',
@@ -272,7 +279,7 @@ export const astTokenHandlers: Record<
   R_PAREN(
     _token: Token,
     cursor: AstNode,
-    onNodeComplete?: ((node: AstNode) => void) | undefined,
+    onNodeComplete?: (node: AstNode) => void,
   ): AstNode {
     const parenthetical = cursor.requireClosestBefore('PARENTHETICAL', [
       'INLINE_BRANCHING',
@@ -284,7 +291,7 @@ export const astTokenHandlers: Record<
       return cursor;
     }
 
-    onNodeComplete?.(parenthetical);
+    applyCallback(parenthetical, onNodeComplete);
 
     // Return the parent of the parenthetical so we can continue in the
     // previous parsing context.
@@ -305,21 +312,16 @@ export const astTokenHandlers: Record<
   R_CURLY(
     _token: Token,
     cursor: AstNode,
-    onNodeComplete?: ((node: AstNode) => void) | undefined,
+    onNodeComplete?: (node: AstNode) => void,
   ): AstNode {
     const inlineBranching = cursor.requireClosestBefore('INLINE_BRANCHING', [
       'PARENTHETICAL',
       'COMPOUND',
     ]);
 
-    // Tolerate stray closing curlies
-    if (!inlineBranching) {
-      return cursor;
-    }
-
-    onNodeComplete?.(inlineBranching);
-
-    return inlineBranching;
+    return inlineBranching
+      ? applyCallback(inlineBranching, onNodeComplete)
+      : cursor;
   },
 
   L_SQUARE(token: Token, cursor: AstNode): AstNode {
@@ -336,21 +338,14 @@ export const astTokenHandlers: Record<
   R_SQUARE(
     _token: Token,
     cursor: AstNode,
-    onNodeComplete?: ((node: AstNode) => void) | undefined,
+    onNodeComplete?: (node: AstNode) => void,
   ): AstNode {
     const compound = cursor.requireClosestBefore('COMPOUND', [
       'PARENTHETICAL',
       'INLINE_BRANCHING',
     ]);
 
-    // Tolerate stray closing squares
-    if (!compound) {
-      return cursor;
-    }
-
-    onNodeComplete?.(compound);
-
-    return compound;
+    return compound ? applyCallback(compound, onNodeComplete) : cursor;
   },
 };
 

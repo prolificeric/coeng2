@@ -152,7 +152,7 @@ export const tokenize = (
 
       const end: Cursor = {
         offset: start.offset + value.length,
-        line: start.line + lines.length,
+        line: start.line + lines.length - 1,
         column:
           lines.length > 1
             ? lines[lines.length - 1].length + 1

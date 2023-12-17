@@ -21,6 +21,11 @@ export type ConceptTag =
   | 'TRIGGER_NAME'
   | 'TRIGGER';
 
+export type ParsedAstNode = AstNode & {
+  _cache: ParseCache;
+  children: ParsedAstNode[];
+};
+
 export type ParseCache = {
   permutations?: Concept[][];
 };
@@ -141,30 +146,30 @@ export class Concept {
 
     return parts.map(part => part.key).join(' ');
   }
+
+  static parse(source: string): Concept {
+    return Concept.parseAll(source)[0] || null;
+  }
+
+  static parseAll(source: string): Concept[] {
+    const concepts: Concept[] = [];
+    const tokens = tokenize(source);
+
+    AstNode.parseTokens(tokens, node => {
+      astVisitors[node.type]?.(node, concepts);
+    });
+
+    return concepts;
+  }
 }
-
-export const parseConcept = (source: string): Concept => {
-  return parseConcepts(source)[0] || null;
-};
-
-export const parseConcepts = (source: string): Concept[] => {
-  const concepts: Concept[] = [];
-
-  AstNode.fromTokens(tokenize(source), node => {
-    astVisitors[node.type]?.call(astVisitors, node, concepts);
-  });
-
-  return concepts;
-};
-
-export type ParsedAstNode = AstNode & {
-  _cache: ParseCache;
-  children: ParsedAstNode[];
-};
 
 export const astVisitors: Partial<{
   [type in AstNodeType]: (node: ParsedAstNode, concepts: Concept[]) => void;
 }> = {
+  ROOT(node, concepts) {
+    return this.COMPOUND!(node, concepts);
+  },
+
   ATOM(node) {
     node._cache.permutations = [[new Concept(node.token!.value)]];
   },
@@ -173,6 +178,16 @@ export const astVisitors: Partial<{
     node._cache.permutations = combinePermutationSegments(
       node.children.map(child => child._cache.permutations).filter(Boolean),
     );
+  },
+
+  INLINE_BRANCHING(node) {
+    const permutations: Concept[][] = (node._cache.permutations = []);
+
+    node.children
+      .filter(child => child.type === 'BRANCH')
+      .forEach((branch: ParsedAstNode) => {
+        permutations.push(...(branch._cache.permutations || []));
+      });
   },
 
   COMPOUND(node) {
@@ -199,7 +214,15 @@ export const astVisitors: Partial<{
       .forEach((branch: ParsedAstNode) => {
         branch._cache.permutations?.forEach(branchPermutation => {
           parent._cache.permutations?.forEach(parentPermutation => {
-            // concepts.push(Concept.fromParts([parentPermutation....branchPermutation]));
+            const lastParentConcept = parentPermutation.at(-1);
+
+            if (!lastParentConcept) {
+              return;
+            }
+
+            concepts.push(
+              Concept.fromParts([lastParentConcept, ...branchPermutation]),
+            );
           });
         });
       });

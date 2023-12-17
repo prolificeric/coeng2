@@ -14,9 +14,7 @@ describe('AstNode', () => {
         }
       `);
 
-      const ast = AstNode.fromTokens(tokens);
-
-      console.dir(ast, { depth: null });
+      const ast = AstNode.parseTokens(tokens);
     });
   });
 });
