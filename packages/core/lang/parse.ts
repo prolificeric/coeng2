@@ -5,7 +5,6 @@ import {
   AstNode,
   AtomNode,
   BranchNode,
-  BranchingNode,
   CompoundNode,
   InlineBranchingNode,
   ParentheticalNode,
@@ -13,8 +12,6 @@ import {
 } from './ast';
 
 export type TokenHandler = (context: ConceptParsingContext) => AstNode;
-
-export type PermutationsMap = Map<AstNode, Concept[][]>;
 
 export const parseConcepts = (source: string): Concept[] => {
   const tokens = tokenize(source);
@@ -36,6 +33,14 @@ export const parseConcepts = (source: string): Concept[] => {
     context.token = token;
     context.branch = handler(context);
   }
+
+  context.close();
+
+  root.children.forEach(child => {
+    context.results.push(
+      ...(context.getPermutations(child) || []).map(Concept.fromParts),
+    );
+  });
 
   return context.results;
 };
@@ -161,54 +166,50 @@ export const tokenHandlers: Record<TokenType, TokenHandler> = {
   },
 
   R_SQUARE(ctx) {
-    const inlineBranchingNode = ctx.branch.parent;
+    const compoundBranchingNode = ctx.branch.parent;
 
-    if (!inlineBranchingNode?.is(InlineBranchingNode)) {
+    if (!compoundBranchingNode?.is(CompoundNode)) {
       throw new Error(
-        `Unexpected R_CURLY at line ${ctx.token.loc.start.line}, column ${ctx.token.loc.start.column}`,
+        `Unexpected R_SQUARE at line ${ctx.token.loc.start.line}, column ${ctx.token.loc.start.column}`,
       );
     }
 
     ctx.close();
 
     ctx.setPermutations(
-      inlineBranchingNode,
-      inlineBranchingNode.children
-        .filter(child => !child.is(ParentheticalNode))
+      compoundBranchingNode,
+      compoundBranchingNode.children
         .map(child => ctx.getPermutations(child) || [])
-        .reduce(
-          (agg, branchPermutations) =>
-            agg.concat([branchPermutations.map(Concept.fromParts)]),
-          [],
-        ),
+        .flat(1)
+        .map(permutation => {
+          const concept = Concept.fromParts(permutation);
+          return [concept];
+        }),
     );
 
     return ctx.branch.parent?.parent || ctx.root.children.at(-1)!;
   },
 
   HEAD_REF(ctx) {
-    const branches: BranchNode[] = ctx.branch.collect(
-      node => node.parent.parent,
-      node => node.is(BranchNode),
-    );
+    throw new Error('Function not implemented.');
+    // const branches: BranchNode[] = ctx.branch.collect(
+    //   node => node.parent.parent,
+    //   node => node.is(BranchNode),
+    // );
 
-    const topBranch = branches.at(-1) || ctx.branch;
+    // const topBranch = branches.at(-1) || ctx.branch;
 
-    const firstNode = topBranch.children.find(
-      child => !child.is(ParentheticalNode),
-    );
+    // const headNode = topBranch.children.find(
+    //   child => !child.is(ParentheticalNode),
+    // );
 
-    if (!firstNode) {
-      return ctx.branch;
-    }
+    // if (headNode) {
+    //   // This is a reference to a node that already exists.
+    //   // We don't use insert, because we don't want to remove it from its original location.
+    //   ctx.branch.children.push(headNode);
+    // }
 
-    const firstPermutations = ctx.getPermutations(firstNode) || [];
-
-    if (!firstPermutations.length) {
-      return ctx.branch;
-    }
-
-    return ctx.branch;
+    // return ctx.branch;
   },
 
   PREV_SEQ_REF(ctx) {
@@ -219,6 +220,8 @@ export const tokenHandlers: Record<TokenType, TokenHandler> = {
     throw new Error('Function not implemented.');
   },
 };
+
+export type PermutationsMap = Map<AstNode, Concept[][]>;
 
 export class ConceptParsingContext {
   token: Token;
@@ -248,12 +251,22 @@ export class ConceptParsingContext {
     this.#permutationCache.set(node, permutations);
   }
 
+  #metaCache: PermutationsMap = new Map();
+
+  getPermutations(node: AstNode): Concept[][] | null {
+    return this.#permutationCache.get(node) || null;
+  }
+
+  setPermutations(node: AstNode, permutations: Concept[][]) {
+    this.#permutationCache.set(node, permutations);
+  }
+
   close() {
     let combinedPermutations: Concept[][] = [];
 
     this.branch.children
       .reduce((left: Concept[][], child: AstNode) => {
-        const right = ctx.getPermutations(child) || [];
+        const right = this.getPermutations(child) || [];
         return combinePermutations(left, right);
       }, [])
       .forEach(permutation => {

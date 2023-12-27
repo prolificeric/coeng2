@@ -1,5 +1,3 @@
-import { tokenize } from './lang/tokens';
-import { AstNode, AstNodeType } from './lang/ast';
 import { cached } from './utils';
 import { TriggerDirective } from './trigger';
 
@@ -20,15 +18,6 @@ export type ConceptTag =
   | 'TRIGGER_CLAUSE'
   | 'TRIGGER_NAME'
   | 'TRIGGER';
-
-export type ParsedAstNode = AstNode & {
-  _cache: ParseCache;
-  children: ParsedAstNode[];
-};
-
-export type ParseCache = {
-  permutations?: Concept[][];
-};
 
 export class Concept {
   key: string;
@@ -144,120 +133,8 @@ export class Concept {
       return parts[0].key;
     }
 
-    return parts.map(part => part.key).join(' ');
-  }
-
-  static parse(source: string): Concept {
-    return Concept.parseAll(source)[0] || null;
-  }
-
-  static parseAll(source: string): Concept[] {
-    const concepts: Concept[] = [];
-    const tokens = tokenize(source);
-
-    AstNode.parseTokens(tokens, node => {
-      astVisitors[node.type]?.(node, concepts);
-    });
-
-    return concepts;
+    return parts
+      .map(part => (part.parts.length ? `[${part.key}]` : part.key))
+      .join(' ');
   }
 }
-
-export const astVisitors: Partial<{
-  [type in AstNodeType]: (node: ParsedAstNode, concepts: Concept[]) => void;
-}> = {
-  ROOT(node, concepts) {
-    return this.COMPOUND!(node, concepts);
-  },
-
-  ATOM(node) {
-    node._cache.permutations = [[new Concept(node.token!.value)]];
-  },
-
-  BRANCH(node) {
-    node._cache.permutations = combinePermutationSegments(
-      node.children.map(child => child._cache.permutations).filter(Boolean),
-    );
-  },
-
-  INLINE_BRANCHING(node) {
-    const permutations: Concept[][] = (node._cache.permutations = []);
-
-    node.children
-      .filter(child => child.type === 'BRANCH')
-      .forEach((branch: ParsedAstNode) => {
-        permutations.push(...(branch._cache.permutations || []));
-      });
-  },
-
-  COMPOUND(node) {
-    const permutations: Concept[][] = (node._cache.permutations = []);
-
-    node.children
-      .filter(child => child.type === 'BRANCH')
-      .forEach((branch: ParsedAstNode) => {
-        branch._cache.permutations?.forEach(branchPermutation => {
-          permutations.push([Concept.fromParts(branchPermutation)]);
-        });
-      });
-  },
-
-  PARENTHETICAL(parenthetical, concepts) {
-    const parent: ParsedAstNode | null = parenthetical.parent;
-
-    if (!parent) {
-      throw new Error('PARENTHETICAL must have a parent.');
-    }
-
-    parenthetical.children
-      .filter(child => child.type === 'BRANCH')
-      .forEach((branch: ParsedAstNode) => {
-        branch._cache.permutations?.forEach(branchPermutation => {
-          parent._cache.permutations?.forEach(parentPermutation => {
-            const lastParentConcept = parentPermutation.at(-1);
-
-            if (!lastParentConcept) {
-              return;
-            }
-
-            concepts.push(
-              Concept.fromParts([lastParentConcept, ...branchPermutation]),
-            );
-          });
-        });
-      });
-  },
-};
-
-export const combinePermutationSegments = (
-  segments: Concept[][][],
-): Concept[][] => {
-  const [firstSegmentPermutations, ...rest] = segments;
-
-  if (!firstSegmentPermutations) {
-    return [];
-  }
-
-  const restCombined = combinePermutationSegments(rest);
-
-  if (!restCombined.length) {
-    return firstSegmentPermutations;
-  }
-
-  if (!firstSegmentPermutations.length) {
-    return restCombined;
-  }
-
-  const combinedPartPermutations: Concept[][] = [];
-
-  firstSegmentPermutations.forEach(permutation => {
-    restCombined.forEach(combinedPartPermutation => {
-      combinedPartPermutations.push([
-        ...permutation,
-        ...combinedPartPermutation,
-      ]);
-    });
-  });
-
-  return combinedPartPermutations;
-};

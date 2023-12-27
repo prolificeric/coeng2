@@ -1,9 +1,21 @@
+import { cached } from '../utils';
 import { Token } from './tokens';
 
 export type AstNodePredicate = (node: AstNode) => boolean;
 
 export type AstNodeSelector = (node: AstNode) => AstNode | null;
-export class AstNode<
+
+export type AstCompilePermutationsResult = {
+  parentheticals: AstSegmentPermutation[];
+  permutations: AstSegmentPermutation[];
+};
+
+export type AstSegmentPermutation = {
+  segments: (AtomNode | CompoundNode)[];
+  refs: Set<AstNode>[];
+};
+
+export abstract class AstNode<
   TParent extends AstNode | never = any,
   TChild extends AstNode | never = any,
 > {
@@ -14,6 +26,8 @@ export class AstNode<
   constructor(init?: { token?: Token | null }) {
     this.token = init?.token ?? null;
   }
+
+  abstract compilePermutations(): AstCompilePermutationsResult;
 
   is(Class: Function) {
     return this instanceof Class;
@@ -122,17 +136,56 @@ export class AstNode<
   }
 }
 
-export class AtomNode extends AstNode<BranchNode, ParentheticalNode> {}
+export class AtomNode extends AstNode<BranchNode, never> {
+  compilePermutations() {
+    return {
+      parentheticals: [],
+      permutations: [{ segments: [this], refs: [] }],
+    };
+  }
+}
 
-export class BranchNode extends AstNode<
-  BranchingNode,
-  AtomNode | BranchingNode
-> {}
+export class BranchNode extends AstNode<BranchingNode, AstNode> {
+  compilePermutations() {
+    const result: AstCompilePermutationsResult = {
+      parentheticals: [],
+      permutations: [],
+    };
 
-export class BranchingNode extends AstNode<
-  BranchNode,
-  BranchNode | ParentheticalNode
-> {}
+    const appendSegment = (node: AtomNode | CompoundNode | RefNode) => {
+      if (result.permutations.length === 0) {
+        result.permutations.push({
+          segments: [node],
+          refs: [],
+        });
+      }
+    };
+
+    let prevIsDirective = false;
+
+    this.children.forEach(child => {
+      const childFlat = child.compilePermutations();
+
+      let {
+        permutations: childPermutations,
+        parentheticals: childParentheticals,
+      } = childFlat;
+
+      if (prevIsDirective) {
+        childPermutations = childPermutations.concat(childParentheticals);
+        childParentheticals = [];
+      }
+
+      childPermutations.forEach(p => {});
+
+      result.parentheticals.push(...childParentheticals);
+    });
+
+    return result;
+  }
+}
+
+export abstract class BranchingNode extends AstNode<BranchNode, BranchNode> {}
 
 export class RootNode extends BranchingNode {}
 
@@ -142,18 +195,6 @@ export class CompoundNode extends BranchingNode {}
 
 export class ParentheticalNode extends BranchingNode {}
 
-export class SortedSetInitNode extends AstNode<
-  CompoundNode,
-  ParentheticalNode
-> {}
+export class RefNode extends AstNode<BranchNode, never> {}
 
-export class RefNode extends AstNode<BranchNode, ParentheticalNode> {
-  start: number | null = null;
-  end: number | null = null;
-
-  constructor(start: number | null = null, end: number | null = null) {
-    super();
-    this.start = start;
-    this.end = end ?? start;
-  }
-}
+export class SortedSetInitNode extends AstNode<CompoundNode, never> {}
