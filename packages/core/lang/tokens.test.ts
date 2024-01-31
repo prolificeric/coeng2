@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'bun:test';
-import { RegExpParser, tokenize } from './tokens';
+import { RegExpParser, generateTokens, tokenize } from './tokens';
 
 describe('parse', () => {
   describe('RegExpParser', () => {
@@ -19,12 +19,13 @@ describe('parse', () => {
       expect(tokenize('')).toEqual([]);
     });
 
-    test('should return an empty array if the input is whitespace', () => {
+    test('should return an empty array if the input contains fluff', () => {
       expect(tokenize(' ')).toEqual([]);
       expect(tokenize('\n')).toEqual([]);
       expect(tokenize('\t')).toEqual([]);
       expect(tokenize('\n\n')).toEqual([]);
       expect(tokenize('\n\n\n\n\n\n\n\n')).toEqual([]);
+      expect(tokenize('{} []')).toEqual([]);
     });
 
     test('works on complex input', () => {

@@ -15,10 +15,12 @@ export type TokenType =
 export type Token = {
   type: TokenType;
   value: string;
-  loc: {
-    start: Cursor;
-    end: Cursor;
-  };
+  loc: CursorRange;
+};
+
+export type CursorRange = {
+  start: Cursor;
+  end: Cursor;
 };
 
 export type Cursor = {
@@ -42,7 +44,7 @@ export const RegExpParser = (
   };
 };
 
-export const defaultTokenParsers: TokenParser[] = [
+export const tokenParsers: TokenParser[] = [
   {
     type: 'BRANCH_SEPARATOR',
     parse: RegExpParser(/^[,\n][, \t\n]*/),
@@ -116,69 +118,114 @@ export const defaultTokenParsers: TokenParser[] = [
   },
 ];
 
-export const tokenize = (
-  input: string,
-  tokenParsers: TokenParser[] = defaultTokenParsers,
-): Token[] => {
-  const trimmedLeft = input.trimStart();
+const CURSOR_INIT: Cursor = {
+  offset: 0,
+  line: 1,
+  column: 1,
+};
 
-  const trimmedRight = trimmedLeft.trimEnd();
+export function tokenize(source: string): Token[];
 
-  if (!trimmedRight) {
-    return [];
-  }
+export function tokenize(source: AsyncIterable<string>): Promise<Token[]>;
 
-  const trimmedLines = input.slice(0, trimmedLeft.length).split('\n');
+export function tokenize(
+  source: string | AsyncIterable<string>,
+): Token[] | Promise<Token[]> {
+  return typeof source === 'string'
+    ? Array.from(generateTokens(source))
+    : Array.fromAsync(generateTokens(source));
+}
 
-  let start: Cursor = {
-    offset: input.length - trimmedLeft.length,
-    line: trimmedLines.length,
-    column: trimmedLines.at(-1)!.length + 1,
-  };
+export function generateTokens(source: string): Iterable<Token>;
 
-  const tokens: Token[] = [];
+export function generateTokens(
+  source: AsyncIterable<string>,
+): AsyncIterable<Token>;
 
-  input = trimmedRight;
-
-  inputLoop: while (input) {
-    tokenParserLoop: for (const { type, parse } of tokenParsers) {
-      const value = parse(input);
-
-      if (!value) {
-        continue tokenParserLoop;
-      }
-
-      const lines = value.split('\n');
-
-      const end: Cursor = {
-        offset: start.offset + value.length,
-        line: start.line + lines.length - 1,
-        column:
-          lines.length > 1
-            ? lines[lines.length - 1].length + 1
-            : start.column + value.length,
-      };
-
-      const token: Token = {
-        type,
-        value,
-        loc: { start, end },
-      };
-
-      tokens.push(token);
-
-      input = input.slice(value.length);
-      start = end;
-
-      continue inputLoop;
+export function* generateTokens(
+  source: string | AsyncIterable<string>,
+): Iterable<Token> | AsyncIterable<Token> {
+  // Sync handling
+  if (typeof source === 'string') {
+    // Test for useless source
+    if (/^[\n\t ,\[\]\{\}\(\)]*$/.test(source)) {
+      return;
     }
 
-    throw new Error(
-      `Unexpected token at line ${start.line}, column ${
-        start.column
-      }: ${JSON.stringify(input.slice(0, 10))}`,
-    );
+    const state = {
+      remainingSource: source,
+      cursor: CURSOR_INIT,
+    };
+
+    while (state.remainingSource) {
+      for (const { type, parse } of tokenParsers) {
+        const value = parse(state.remainingSource);
+
+        if (!value) {
+          continue;
+        }
+
+        const lines = value.split('\n');
+
+        const token: Token = {
+          type,
+          value,
+          loc: {
+            start: state.cursor,
+            end: {
+              offset: state.cursor.offset + value.length,
+              line: state.cursor.line + lines.length - 1,
+              column: state.cursor.column + lines.at(-1)!.length,
+            },
+          },
+        };
+
+        state.remainingSource = state.remainingSource.slice(value.length);
+        state.cursor = token.loc.end;
+
+        yield token;
+
+        break;
+      }
+    }
+
+    return;
   }
 
-  return tokens;
-};
+  // Async handling
+  async function* handleAsync() {
+    const state = {
+      lastToken: null as Token | null,
+    };
+
+    for await (const chunk of source) {
+      const prependedChunk = (state.lastToken?.value || '') + chunk;
+
+      for (const token of generateTokens(prependedChunk)) {
+        const isLastToken = token.loc.end.offset === chunk.length;
+
+        // Adjust token location
+        if (state.lastToken) {
+          token.loc.start.offset += state.lastToken.loc.end.offset;
+          token.loc.start.line += state.lastToken.loc.start.line;
+          token.loc.start.column += state.lastToken.loc.start.column;
+          token.loc.end.offset += state.lastToken.loc.end.offset;
+          token.loc.end.line += state.lastToken.loc.start.line;
+          token.loc.end.column += state.lastToken.loc.start.column;
+        }
+
+        if (!isLastToken) {
+          yield token;
+        } else {
+          state.lastToken = token;
+        }
+      }
+    }
+
+    if (state.lastToken) {
+      yield state.lastToken;
+    }
+  }
+
+  return handleAsync();
+}

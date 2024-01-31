@@ -1,200 +1,250 @@
-import { cached } from '../utils';
 import { Token } from './tokens';
 
-export type AstNodePredicate = (node: AstNode) => boolean;
-
-export type AstNodeSelector = (node: AstNode) => AstNode | null;
-
-export type AstCompilePermutationsResult = {
-  parentheticals: AstSegmentPermutation[];
-  permutations: AstSegmentPermutation[];
-};
-
-export type AstSegmentPermutation = {
-  segments: (AtomNode | CompoundNode)[];
-  refs: Set<AstNode>[];
-};
-
 export abstract class AstNode<
-  TParent extends AstNode | never = any,
-  TChild extends AstNode | never = any,
-> {
-  token: Token | null = null;
-  parent: TParent | null = null;
-  children: TChild[] = [];
+  TChild extends AstNode = AstNode<any, any>,
+  TParent extends AstNode = AstNode<any, any>,
+> extends EventTarget {
+  root: RootNode | null;
+  token: Token | null;
+  parent: TParent | null;
+  children: TChild[];
 
-  constructor(init?: { token?: Token | null }) {
-    this.token = init?.token ?? null;
+  constructor(
+    init: {
+      root?: RootNode | null;
+      token?: Token | null;
+      parent?: TParent | null;
+      children?: TChild[];
+    } = {},
+  ) {
+    super();
+    this.root = init.root ?? null;
+    this.token = init.token ?? null;
+    this.parent = init.parent ?? null;
+    this.children = init.children ?? [];
   }
 
-  abstract compilePermutations(): AstCompilePermutationsResult;
-
-  is(Class: Function) {
-    return this instanceof Class;
+  addEventListener(...args: Parameters<EventTarget['addEventListener']>) {
+    throw new Error(`${this.constructor.name} does not emit events.`);
   }
 
-  appendChild(child: TChild) {
-    child.parent?.removeChild(child);
-    child.parent = this;
-    this.children.push(child);
-    return this;
-  }
-
-  appendTo(parent: TParent) {
-    parent.appendChild(this);
-    return this;
-  }
-
-  insertChild(child: TChild, after: TChild) {
-    const index = this.children.indexOf(after);
-
-    if (index === -1) {
-      throw new Error('Cannot insert child after non-child.');
+  consumeToken(token: Token): AstNode {
+    switch (token.type) {
+      case 'ATOM':
+        return this.consumeAtom(token);
+      case 'BRANCH_SEPARATOR':
+        return this.consumeBranchSeparator(token);
+      case 'PART_SEPARATOR':
+        return this.consumePartSeparator(token);
+      case 'L_PAREN':
+        return this.consumeLeftParen(token);
+      case 'R_PAREN':
+        return this.consumeRightParen(token);
+      case 'L_CURLY':
+        return this.consumeLeftCurly(token);
+      case 'R_CURLY':
+        return this.consumeRightCurly(token);
+      case 'L_SQUARE':
+        return this.consumeLeftSquare(token);
+      case 'R_SQUARE':
+        return this.consumeRightSquare(token);
+      case 'HEAD_REF':
+        return this.consumeHeadRef(token);
+      case 'PREV_SEQ_REF':
+        return this.consumePrevSeqRef(token);
+      case 'SORTED_SET_INIT':
+        return this.consumeSortedSetInit(token);
     }
+  }
 
-    child.parent?.removeChild(child);
-    child.parent = this;
-    this.children.splice(index + 1, 0, child);
+  consumeAtom(token: Token): AstNode {
     return this;
   }
 
-  removeChild(child: TChild) {
+  consumeBranchSeparator(token: Token): AstNode {
+    return this;
+  }
+
+  consumePartSeparator(token: Token): AstNode {
+    return this;
+  }
+
+  consumeLeftParen(token: Token): AstNode {
+    return this;
+  }
+
+  consumeRightParen(token: Token): AstNode {
+    return this;
+  }
+
+  consumeLeftCurly(token: Token): AstNode {
+    return this;
+  }
+
+  consumeRightCurly(token: Token): AstNode {
+    return this;
+  }
+
+  consumeLeftSquare(token: Token): AstNode {
+    return this;
+  }
+
+  consumeRightSquare(token: Token): AstNode {
+    return this;
+  }
+
+  consumeHeadRef(token: Token): AstNode {
+    return this;
+  }
+
+  consumePrevSeqRef(token: Token): AstNode {
+    return this;
+  }
+
+  consumeSortedSetInit(token: Token): AstNode {
+    return this;
+  }
+
+  append(child: TChild) {
+    this.remove(child);
+    this.children.push(child);
+    child.parent = this;
+    return this;
+  }
+
+  prepend(child: TChild) {
+    this.remove(child);
+    this.children.unshift(child);
+    child.parent = this;
+    return this;
+  }
+
+  remove(child: TChild) {
     const index = this.children.indexOf(child);
 
     if (index !== -1) {
       this.children.splice(index, 1);
+      child.parent = null;
     }
 
     return this;
   }
 
-  prevSibling(predicate: AstNodePredicate = () => true): AstNode | null {
-    const index = this.parent?.children.indexOf(this) ?? -1;
-
-    if (index <= 0) {
-      return null;
-    }
-
-    return (
-      this.parent!.children.slice(0, index).toReversed().find(predicate) ?? null
-    );
+  appendTo(parent: TParent) {
+    this.parent?.remove(this);
+    parent.append(this);
+    return this;
   }
 
-  nextSibling(predicate: AstNodePredicate = () => true): AstNode | null {
-    const index = this.parent?.children.indexOf(this) ?? -1;
-
-    if (index <= 0) {
-      return null;
-    }
-
-    return this.parent!.children.slice(index + 1).find(predicate) ?? null;
-  }
-
-  visit(
-    selector: (node: AstNode) => AstNode | null,
-    visitor: (node: AstNode) => void,
-  ) {
-    for (const node of this.traverse(selector)) {
-      visitor(node);
-    }
-  }
-
-  collect(
-    selector: (node: AstNode) => AstNode | null,
-    predicate: AstNodePredicate = () => true,
-  ) {
-    const collection: AstNode[] = [];
-
-    this.visit(selector, node => {
-      if (predicate(node)) {
-        collection.push(node);
-      }
-    });
-
-    return collection;
-  }
-
-  search(
-    selector: (node: AstNode) => AstNode | null,
-    predicate: AstNodePredicate,
-  ) {
-    for (const node of this.traverse(selector)) {
-      if (predicate(node)) {
-        return node;
-      }
-    }
-
-    return null;
-  }
-
-  *traverse(selector: (node: AstNode) => AstNode | null) {
-    let node: AstNode | null = this;
-
-    while ((node = selector(node))) {
-      yield node;
-    }
+  prependTo(parent: TParent) {
+    this.parent?.remove(this);
+    parent.prepend(this);
+    return this;
   }
 }
 
-export class AtomNode extends AstNode<BranchNode, never> {
-  compilePermutations() {
-    return {
-      parentheticals: [],
-      permutations: [{ segments: [this], refs: [] }],
-    };
-  }
+export class RootNode extends AstNode<BranchNode, RootNode> {
+  parent = this;
 }
 
-export class BranchNode extends AstNode<BranchingNode, AstNode> {
-  compilePermutations() {
-    const result: AstCompilePermutationsResult = {
-      parentheticals: [],
-      permutations: [],
-    };
+export class BranchingNode extends AstNode<BranchNode, BranchNode> {}
 
-    const appendSegment = (node: AtomNode | CompoundNode | RefNode) => {
-      if (result.permutations.length === 0) {
-        result.permutations.push({
-          segments: [node],
-          refs: [],
-        });
-      }
-    };
+export class AtomNode extends AstNode<never, BranchNode> {}
 
-    let prevIsDirective = false;
-
-    this.children.forEach(child => {
-      const childFlat = child.compilePermutations();
-
-      let {
-        permutations: childPermutations,
-        parentheticals: childParentheticals,
-      } = childFlat;
-
-      if (prevIsDirective) {
-        childPermutations = childPermutations.concat(childParentheticals);
-        childParentheticals = [];
-      }
-
-      childPermutations.forEach(p => {});
-
-      result.parentheticals.push(...childParentheticals);
-    });
-
-    return result;
-  }
-}
-
-export abstract class BranchingNode extends AstNode<BranchNode, BranchNode> {}
-
-export class RootNode extends BranchingNode {}
+export class NestedBranchingNode extends BranchingNode {}
 
 export class InlineBranchingNode extends BranchingNode {}
 
-export class CompoundNode extends BranchingNode {}
+export class ParentheticalBranchingNode extends BranchingNode {}
 
-export class ParentheticalNode extends BranchingNode {}
+export type EventListenerCallback<
+  TEventProperties extends Record<string, any> = {},
+> = (event: Event & TEventProperties) => void | {
+  handleEvent: (event: Event & TEventProperties) => void;
+} | null;
 
-export class RefNode extends AstNode<BranchNode, never> {}
+export class BranchNode extends AstNode<
+  AtomNode | BranchingNode,
+  BranchingNode | RootNode
+> {
+  addEventListener(type: 'close', callback: EventListenerCallback) {
+    super.addEventListener(type, callback);
+  }
 
-export class SortedSetInitNode extends AstNode<CompoundNode, never> {}
+  consumeAtom(token: Token) {
+    return this.append(
+      new AtomNode({
+        token,
+        parent: this,
+      }),
+    );
+  }
+
+  consumeBranchSeparator(token: Token) {
+    if (!this.children.length) {
+      this.parent?.remove(this);
+    }
+
+    const nextBranch = new BranchNode({ token });
+
+    this.parent?.append(nextBranch);
+
+    return nextBranch;
+  }
+
+  consumeLeftSquare(token: Token) {
+    return this.consumeBranchOpeningToken(NestedBranchingNode, token);
+  }
+
+  consumeRightSquare(token: Token) {
+    return this.consumeBranchClosingToken(NestedBranchingNode, token);
+  }
+
+  consumeLeftCurly(token: Token) {
+    return this.consumeBranchOpeningToken(InlineBranchingNode, token);
+  }
+
+  consumeRightCurly(token: Token) {
+    return this.consumeBranchClosingToken(InlineBranchingNode, token);
+  }
+
+  consumeLeftParen(token: Token) {
+    return this.consumeBranchOpeningToken(ParentheticalBranchingNode, token);
+  }
+
+  consumeRightParen(token: Token) {
+    return this.consumeBranchClosingToken(ParentheticalBranchingNode, token);
+  }
+
+  protected consumeBranchOpeningToken(
+    NodeType: typeof BranchingNode,
+    token: Token,
+  ) {
+    return new BranchNode().append(new NodeType({ token }).appendTo(this));
+  }
+
+  protected consumeBranchClosingToken(
+    NodeType: typeof BranchingNode,
+    token: Token,
+  ) {
+    if (this.parent instanceof NodeType === false) {
+      throw new UnexpectedTokenError(token);
+    }
+
+    const parentBranch = this.parent.parent;
+
+    if (!parentBranch) {
+      throw new UnexpectedTokenError(token);
+    }
+
+    return parentBranch;
+  }
+}
+
+export class UnexpectedTokenError extends Error {
+  constructor(token: Token) {
+    super(
+      `Unexpected ${token.type} at ${token.loc.start.line}:${token.loc.start.column}`,
+    );
+  }
+}
